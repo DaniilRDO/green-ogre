@@ -145,7 +145,7 @@ const beep = document.getElementById("beep");
 let typingInterval; // Додайте цю змінну на початку скрипта
 
 /* Логіка кнопки*/
-document.getElementById("changeTextBtn").onclick = () => {
+document.getElementById("changeTextBtn").onclick = function() {
     const alternativeText = `Перший контакт із аномалією показав:
 стандартні методи не працюють.
 
@@ -521,7 +521,7 @@ function updateQuestion() {
                     currentQuestion++;
                     if (currentQuestion === questions.length) {
                         alert("Етап 5 завершено! Перехід до Етапу 6...");
-                        // stage6(); // Виклик наступного етапу
+                        stage6(); // Виклик наступного етапу
                     } else {
                         updateQuestion();
                     }
