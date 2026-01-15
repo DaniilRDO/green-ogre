@@ -87,7 +87,7 @@ input, button {
 
 <body>
 
-<div id="timer">10:00</div>
+<div id="timer">30:00</div>
 <div id="terminal"></div>
 
 <div style="display: flex; gap: 10px;">
@@ -118,6 +118,12 @@ input, button {
 <div id="flash-overlay" style="position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: 0;"></div>
 
 
+
+<div id="stage7-container" class="hidden">
+    <div id="quiz-fields" style="display: grid; gap: 20px; margin-top: 20px;"></div>
+</div>
+
+    
     
 <div id="fakeFields" class="hidden"></div>
 <div id="quiz" class="hidden"></div>
@@ -128,7 +134,7 @@ input, button {
 
 <script>
 let stage = 1;
-let timeLeft = 600;
+let timeLeft = 1800;
 let timerInterval;
 
 const terminal = document.getElementById("terminal");
@@ -541,11 +547,14 @@ function stage6() {
     document.getElementById("stage5-container").classList.add("hidden");
     
     // 2. Вступний текст
-    const stage6Text = `Обладнення в наш час ніяке. Все треба робити самому...
-Раніше для цього використовували хом'яків...
+    const stage6Text = `Обладнення в наш час ніяке. Все треба робити самому.
 
-GREEN OGRE точно не очікує, що ти пройдеш це завдання.
-Але чесно, агенте, мені тебе шкода...
+Раніше для цього використовували хом'яків, а деякі кажуть що легенди завдяки цьому отримували багато і багато аспектів в Таумкрафті.
+
+
+GREEN OGRE точно не очікує, що ти пройдеш це завдання, але це його помилка.
+
+Але чесно, агенте, мене тебе шкода, ти справжній герой своєї країни, ми будемо пам'ятати тебе!
 
 <i style="display:block; margin-top:15px; color: #ff6666;">P.S. вагітним хворим на голову, людям з епілепсією, дотерам, сдвг-шникам, клоунам та карликам в шоколадних бікіні краще відійти від екрану</i>`;
 
@@ -612,6 +621,123 @@ function finishClicking() {
 }
 
 
+/* ===== Звук клавіш ===== */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playClickSound() {
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.type = 'square'; // Квадратна хвиля дає більш "механічний" звук
+    oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
+
+    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.1);
+}
+
+// Глобальний обробник для всіх input на сторінці
+document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') {
+        playClickSound();
+    }
+});
+
+
+
+
+    
+/* ===== ЕТАП 7 ===== */
+function stage7() {
+    // Ховаємо Етап 6
+    const st6 = document.getElementById("stage6-container");
+    if (st6) st6.classList.add("hidden");
+    if (document.getElementById("flash-overlay")) document.getElementById("flash-overlay").remove();
+
+    terminal.innerHTML = "";
+
+    const stage7Text = `Відкриваєш пакунок 5, голова
+
+Вони ніяк не пов'язані між собою, як ти міг зрозуміти.
+
+Тепер просто шараш рандомні питання, бо мені в ПРИКОЛ 
+
+Тобто, все так, Агенте, GREEN-OGRE намагається зламати нас, ти вже бачив його силу. 
+Він часто перекручує наші повідомлення, і відверто глузує з нас. 
+Тепер ми розуміємо, чому саме тебе було обрано на це завдання, ніхто інший не знає відповіді на ці надскладні питання. 
+Можливо частинка об'єкту нашого дослідження є у вас....
+
+
+Не звертай уваги, не гай час, якого й без того мало. Ось тобі допомога!
+Наші хакери змогли зламати жорсткий диск  GREEN-OGRE і ось що вони знайшли біля Смітника - TIME+
+Це секретна одноразова, біохімічно-термоядерна сполука, яка розриває час та матерію. Звісно, якби перед нами не стояла така важлива ціль, 
+ніхто б не дозволив тобі використовувати її. Тому поки керивницвто не побачило, не гай часу! `;
+
+    typeText(stage7Text, () => {
+        const container = document.getElementById("stage7-container");
+        const quizFields = document.getElementById("quiz-fields");
+        container.classList.remove("hidden");
+        terminal.appendChild(container);
+
+        const questions = [
+            { q: "1. Повна назва ДДМА:", a: "ДОНБАСЬКА ДЕРЖАВНА МАШИНОБУДІВНА АКАДЕМІЯ" },
+            { q: "2. Те, що неможливо продати чи купити, але всі намагаються:", a: "СЛОН" },
+            { q: "3. Точна кількість шкоди від гачка товстуна (на 1 рівні):", a: "150" },
+            { q: "4. Яка в мене відеокарта?", a: "GEFORCE GTX 4060" },
+            { q: "5. Що у мене в кармані?", a: "НІЧОГО" },
+            { q: "6. Традиційний подарунок на день народження:", a: "АНТИСТРЕС" },
+            { q: "7. Кодове слово з конверту?", a: "ОБАЛДУЙ" }
+        ];
+
+        questions.forEach((item, index) => {
+            const wrap = document.createElement("div");
+            wrap.id = `q-wrap-${index}`;
+            wrap.innerHTML = `
+                <label style="display:block; color:#00ff66; margin-bottom:5px;">${item.q}</label>
+                <input type="text" class="quiz-input" data-answer="${item.a}" placeholder="Введіть відповідь..." style="width:100%;">
+            `;
+            quizFields.appendChild(wrap);
+        });
+
+        // Додаємо перевірку для кожного інпуту
+        const inputs = document.querySelectorAll(".quiz-input");
+        inputs.forEach(input => {
+            input.onkeydown = (e) => {
+                if (e.key === "Enter") {
+                    const userAnswer = input.value.toUpperCase().trim();
+                    const correctAnswer = input.getAttribute("data-answer");
+
+                    if (userAnswer === correctAnswer) {
+                        input.parentElement.remove(); // Видаляємо все поле з питанням
+                        checkStage7Complete();
+                    } else {
+                        timeLeft -= 20; // Штраф за неправильну відповідь
+                        input.style.borderColor = "red";
+                        setTimeout(() => { input.style.borderColor = "#00ff66"; }, 500);
+                        screamer("scream1", "test");
+                    }
+                }
+            };
+        });
+    });
+}
+
+function checkStage7Complete() {
+    const remainingQuestions = document.querySelectorAll(".quiz-input");
+    if (remainingQuestions.length === 0) {
+        document.getElementById("stage7-container").innerHTML = "<h2 style='color:lime; text-align:center;'>ВСІ КОДИ ПРИЙНЯТО. ПЕРЕХІД ДО ЕТАПУ 8...</h2>";
+        setTimeout(() => {
+            // stage8(); // Сюди додасте виклик 8 етапу
+            alert("Етап 7 пройдено!"); 
+        }, 2000);
+    }
+}
     
 
     
