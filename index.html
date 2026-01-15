@@ -17,6 +17,7 @@ body {
 #terminal {
     white-space: pre-wrap;
     min-height: 200px;
+    margin-bottom: 20px;
 }
 
 input, button {
@@ -24,12 +25,12 @@ input, button {
     color: #00ff66;
     border: 1px solid #00ff66;
     font-family: monospace;
-    padding: 5px;
+    padding: 6px;
 }
 
 #timer {
-    font-size: 24px;
-    margin-bottom: 10px;
+    font-size: 26px;
+    margin-bottom: 15px;
 }
 
 .panic {
@@ -37,11 +38,24 @@ input, button {
     color: red;
 }
 
+.fake-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 25px;
+}
+
+.fake-box label {
+    display: block;
+    margin-bottom: 6px;
+    text-align: center;
+    opacity: 0.7;
+}
+
 .quiz-item {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 
 .light {
@@ -63,9 +77,9 @@ input, button {
     align-items: center;
 }
 .screamer img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
 }
 </style>
 </head>
@@ -74,6 +88,7 @@ input, button {
 
 <div id="timer">05:00</div>
 <div id="terminal"></div>
+
 <input id="input" placeholder="ENTER CODE">
 
 <div id="fakeFields" class="hidden"></div>
@@ -85,7 +100,7 @@ input, button {
 
 <script>
 let stage = 1;
-let timeLeft = 300;
+let timeLeft = 600;
 let timerInterval;
 
 const terminal = document.getElementById("terminal");
@@ -95,13 +110,14 @@ const beep = document.getElementById("beep");
 
 function typeText(text, cb) {
     let i = 0;
+    terminal.innerHTML = "";
     const interval = setInterval(() => {
         terminal.innerHTML += text[i++];
         if (i >= text.length) {
             clearInterval(interval);
             if (cb) cb();
         }
-    }, 15);
+    }, 18);
 }
 
 function startTimer() {
@@ -146,7 +162,7 @@ input.addEventListener("keydown", e => {
 function advance(code) {
     if (stage === 1 && code === "CODE1") {
         stage = 2;
-        typeText("\nACCESS GRANTED\nLOCATE CORRECT CHANNEL\n");
+        input.classList.add("hidden");
         startFakeFields();
     }
     else if (stage === 3 && code === "CODE3") {
@@ -157,37 +173,44 @@ function advance(code) {
 
 function startFakeFields() {
     const wrap = document.getElementById("fakeFields");
-    wrap.classList.remove("hidden");
+    wrap.className = "fake-grid";
     wrap.innerHTML = "";
 
-    const correct = "X9A7Q2";
+    const correctId = "A7Q9X2"; // ✅ ПРАВИЛЬНЕ ПОЛЕ
 
     for (let i=0;i<5;i++) {
         const id = Math.random().toString(36).substring(2,8).toUpperCase();
+        const box = document.createElement("div");
+        box.className = "fake-box";
+
+        const label = document.createElement("label");
+        label.textContent = id;
+
         const inp = document.createElement("input");
-        inp.placeholder = id;
+
         inp.addEventListener("keydown", e=>{
             if(e.key!=="Enter")return;
-            if(id===correct && inp.value.toUpperCase()==="CODE2"){
+            if(id === correctId && inp.value.toUpperCase() === "CODE2"){
                 wrap.classList.add("hidden");
                 stage = 3;
+                input.classList.remove("hidden");
                 massiveText();
             } else {
                 timeLeft -= 60;
             }
         });
-        wrap.appendChild(inp);
-        if(id===correct) inp.dataset.correct="1";
+
+        box.append(label, inp);
+        wrap.appendChild(box);
     }
 }
 
 function massiveText() {
-    terminal.innerHTML="";
     typeText(
-`AGENT REPORT:
-NO TURNING BACK.
-CLICK THE WORD TO CONTINUE.
-THE SIGNAL SAYS TAKEME NOW.
+`АНАЛІТИЧНИЙ ЗВІТ:
+ВСЕ, ЩО ВИ БАЧИТЕ — ЧАСТИНА ТЕСТУ.
+НЕ НАМАГАЙТЕСЯ ЗРОЗУМІТИ.
+СЛОВО TAKEME — КЛЮЧ.
 `, ()=>{
         terminal.innerHTML = terminal.innerHTML.replace(
             "TAKEME",
@@ -203,7 +226,7 @@ function startCode4() {
 
     const q = [
         ["Повна назва ДДМА","ДОНБАСЬКА ДЕРЖАВНА МАШИНОБУДІВНА АКАДЕМІЯ"],
-        ["Те що не можна купити","СЛОН"],
+        ["Те, що неможливо продати","СЛОН"],
         ["Шкода гачка","150"],
         ["Відеокарта","GTX 4060"],
         ["Що в кармані","НІЧОГО"],
@@ -246,7 +269,19 @@ function startCode5(){
     });
 }
 
-typeText("SECURE CHANNEL ESTABLISHED\nENTER CODE\n", startTimer);
+typeText(
+`АГЕНТЕ [ІМʼЯ],
+
+якщо ви читаєте це повідомлення — значить система дала збій.
+Або ми. Або ви.
+
+Аналітичний Відділ фіксує аномальну активність, повʼязану з кодовою назвою GREEN OGRE.
+
+Не шукайте логіку.
+Почніть з Конверта №1.
+`,
+startTimer
+);
 </script>
 
 </body>
