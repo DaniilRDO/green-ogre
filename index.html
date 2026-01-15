@@ -90,8 +90,35 @@ input, button {
 <div id="timer">10:00</div>
 <div id="terminal"></div>
 
-<input id="input" placeholder="ENTER CODE">
+<div style="display: flex; gap: 10px;">
+    <input id="input" placeholder="ENTER CODE" style="flex-grow: 1;">
+    <button id="changeTextBtn">Початок розслідування</button>
+</div>
 
+    // Контейнер з текстом на Скалу
+<div id="stage5-container" class="hidden">
+    <div id="hint-box" style="color: yellow; font-size: 1.2em; margin-bottom: 10px;"></div>
+    <div id="secret-text-area" style="background: black; line-height: 1.6; cursor: default; margin-bottom: 20px;"></div>
+    <input id="inputStage5" placeholder="ВВЕДІТЬ ВІДПОВІДЬ">
+</div>
+
+
+    // Контейнер для клікера
+<div id="stage6-container" class="hidden" style="text-align: center; padding-top: 50px;">
+    <div id="click-counter" style="font-size: 72px; font-weight: bold; margin-bottom: 20px;">500</div>
+    <div id="final-code-display" class="hidden" style="font-size: 80px; color: gold; text-shadow: 0 0 20px yellow; margin-bottom: 20px;">СДВГ</div>
+    
+    <button id="mega-button" style="width: 200px; height: 200px; border-radius: 50%; font-size: 24px; cursor: pointer; border: 5px solid white;">ТИЦЯЙ!</button>
+    
+    <div id="final-input-stage6" class="hidden" style="margin-top: 30px;">
+        <input id="inputStage6" placeholder="ENTER FINAL CODE" style="font-size: 20px; padding: 10px;">
+    </div>
+</div>
+
+<div id="flash-overlay" style="position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: 0;"></div>
+
+    // також
+    
 <div id="fakeFields" class="hidden"></div>
 <div id="quiz" class="hidden"></div>
 
@@ -109,13 +136,46 @@ const input = document.getElementById("input");
 const timerDisplay = document.getElementById("timer");
 const beep = document.getElementById("beep");
 
+let typingInterval; // Додайте цю змінну на початку скрипта
+
+/* Логіка кнопки*/
+document.getElementById("changeTextBtn").onclick = () => {
+    const alternativeText = `Перший контакт із аномалією показав:
+стандартні методи не працюють.
+
+Агент, який покладається лише на руки,
+— приречений.
+
+ВАШЕ ЗАВДАННЯ:
+відкрити цей конверт БЕЗ використання рук.
+
+Дозволено:
+– рот
+– лікоть
+– коліно
+– сила тяжіння
+
+Заборонено:
+– здоровий глузд
+– допомога ззовні
+
+Пам’ятайте: якщо це виглядає тупо,
+значить ви все робите правильно.`;
+
+    typeText(alternativeText);
+};
+
+
+
+    
 function typeText(text, cb) {
+    if (typingInterval) clearInterval(typingInterval); // Зупиняємо попередній друк
     let i = 0;
     terminal.innerHTML = "";
-    const interval = setInterval(() => {
+    typingInterval = setInterval(() => {
         terminal.innerHTML += text[i++];
         if (i >= text.length) {
-            clearInterval(interval);
+            clearInterval(typingInterval);
             if (cb) cb();
         }
     }, 18);
@@ -369,6 +429,169 @@ function stage4() {
 }
 
 
+let currentQuestion = 0;
+const questions = [
+    { hint: "1) Моє громадянство?", answer: "ГРОМАДЯНИН США" },
+    { hint: "2) В скількох форсажах я знімався?", answer: "5" },
+    { hint: "3) Остання робота на сьогодні, яка вийшла зі мною?", answer: "НЕЗЛАМНИЙ" },
+    { hint: "4) Чиє в мене тату?", answer: "ПОЛІНЕЗІЙСЬКЕ" }
+];
+
+    /* ===== ЕТАП 5 ===== */
+function stage5() {
+    // 1. Очищаємо все зайве
+    terminal.innerHTML = "";
+    if (document.getElementById("input-container")) document.getElementById("input-container").classList.add("hidden");
+    if (document.getElementById("quiz")) document.getElementById("quiz").classList.add("hidden");
+    
+    // 2. Виводимо вступний текст
+    const introStage5 = `Агенте. Ми мусимо визнати — маскування зірване... [текст скорочено для логіки] ...Докажи що ти Двейн Скала Джонсон.`;
+    
+    typeText(introStage5, () => {
+        const btn = document.createElement("button");
+        btn.textContent = "Я ГОТОВИЙ ПІДТВЕРДИТИ ОСОБИСТІСТЬ";
+        btn.onclick = startRockChallenge;
+        terminal.appendChild(btn);
+    });
+}
+
+function startRockChallenge() {
+    terminal.innerHTML = ""; // Видаляємо текст і кнопку
+    const container = document.getElementById("stage5-container");
+    container.classList.remove("hidden");
+    
+    const textArea = document.getElementById("secret-text-area");
+    const rawText = `Двейн Джонсон відомий не лише своїми ролями у блокбастерах... [сюди вставте повний текст про Джонсона]`;
+
+    // Створюємо ефект прихованих букв
+    textArea.innerHTML = rawText.split("").map(char => 
+        `<span class="ghost-char" style="color: black; transition: color 0.3s;">${char}</span>`
+    ).join("");
+
+    // Логіка підсвічування при наведенні
+    textArea.addEventListener("mouseover", e => {
+        if (e.target.classList.contains("ghost-char")) {
+            e.target.style.color = "#00ff66";
+            setTimeout(() => { e.target.style.color = "black"; }, 1000); // згасає через 1 сек
+        }
+    });
+
+    updateQuestion();
+}
+
+function updateQuestion() {
+    const hintBox = document.getElementById("hint-box");
+    const input = document.getElementById("inputStage5");
+    
+    if (currentQuestion < questions.length) {
+        hintBox.textContent = questions[currentQuestion].hint;
+        input.value = "";
+        input.onkeydown = e => {
+            if (e.key === "Enter") {
+                if (input.value.toUpperCase().trim() === questions[currentQuestion].answer) {
+                    currentQuestion++;
+                    if (currentQuestion === questions.length) {
+                        alert("Етап 5 завершено! Перехід до Етапу 6...");
+                        // stage6(); // Виклик наступного етапу
+                    } else {
+                        updateQuestion();
+                    }
+                } else {
+                    timeLeft -= 30;
+                    screamer("scream1", "test");
+                    input.value = "";
+                }
+            }
+        };
+    }
+}
+
+
+/* ===== ЕТАП 6 ===== */
+let clickCount = 500;
+let colorIndex = 0;
+const acidicColors = ["#FF00FF", "#00FFFF", "#FFFF00", "#FF0000"]; // Маджента, Ціан, Жовтий, Червоний
+
+function stage6() {
+    // 1. Очищення екрана
+    terminal.innerHTML = "";
+    document.getElementById("stage5-container").classList.add("hidden");
+    
+    // 2. Вступний текст
+    const stage6Text = `Обладнення в наш час ніяке. Все треба робити самому...
+Раніше для цього використовували хом'яків...
+
+GREEN OGRE точно не очікує, що ти пройдеш це завдання.
+Але чесно, агенте, мені тебе шкода...
+
+<i style="display:block; margin-top:15px; color: #ff6666;">P.S. вагітним хворим на голову, людям з епілепсією, дотерам, сдвг-шникам, клоунам та карликам в шоколадних бікіні краще відійти від екрану</i>`;
+
+    typeText(stage6Text, () => {
+        setTimeout(() => {
+            terminal.innerHTML = "";
+            document.getElementById("stage6-container").classList.remove("hidden");
+            initClicker();
+        }, 3000);
+    });
+}
+
+function initClicker() {
+    const btn = document.getElementById("mega-button");
+    const counterDisplay = document.getElementById("click-counter");
+    const overlay = document.getElementById("flash-overlay");
+    const screamSound = document.getElementById("scream1"); // Використовуємо ваш тестовий звук
+
+    btn.onclick = () => {
+        if (clickCount > 0) {
+            clickCount--;
+            counterDisplay.textContent = clickCount;
+
+            // Ефект спалаху
+            overlay.style.backgroundColor = acidicColors[colorIndex];
+            overlay.style.opacity = "0.8";
+            setTimeout(() => { overlay.style.opacity = "0"; }, 50);
+
+            // Звук
+            screamSound.currentTime = 0;
+            screamSound.play().catch(e => {});
+
+            // Зміна індексу кольору
+            colorIndex = (colorIndex + 1) % acidicColors.length;
+
+            if (clickCount === 0) {
+                finishClicking();
+            }
+        }
+    };
+}
+
+function finishClicking() {
+    document.getElementById("click-counter").classList.add("hidden");
+    document.getElementById("mega-button").classList.add("hidden");
+    
+    document.getElementById("final-code-display").classList.remove("hidden");
+    document.getElementById("final-input-stage6").classList.remove("hidden");
+
+    const input6 = document.getElementById("inputStage6");
+    input6.focus();
+    input6.onkeydown = e => {
+        if (e.key === "Enter") {
+            if (input6.value.toUpperCase() === "СДВГ") {
+                alert("ПРОТОКОЛ ПОРУШЕНО. ПЕРЕХІД ДО ЕТАПУ 7");
+                // stage7(); // Виклик наступного етапу
+            } else {
+                timeLeft -= 100; // Жорсткий штраф
+                input6.value = "";
+                screamer("scream1", "test");
+            }
+        }
+    };
+}
+
+
+    
+
+    
     
 
     
