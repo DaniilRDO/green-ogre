@@ -857,7 +857,7 @@ function stage8() {
                 // Через 30 секунд перехід
                 setTimeout(() => {
                     stage9();
-                }, 30000);
+                }, 20000);
             }
         };
     });
@@ -954,76 +954,96 @@ function stage10() {
     
 /* ===== ЕТАП 11 ===== */
 function stage11() {
-    // Ховаємо Етап 10
-    document.getElementById("stage10-container").classList.add("hidden");
-    terminal.innerHTML = "";
+    // Ховаємо попередній етап
+    const st10 = document.getElementById("stage10-container");
+    if (st10) st10.classList.add("hidden");
+    
     document.getElementById("stage11-container").classList.remove("hidden");
 
     const numbersGrid = document.getElementById("numbers-grid");
-    const specialNumbers = [38, 0, 994, 831, 255]; // Це були ваші цифри, я додав 0 для прикладу
+    numbersGrid.innerHTML = ""; // Очищуємо на випадок повторного запуску
+    
+    const specialNumbers = [38, 0, 994, 831, 255]; 
     let foundSpecialCount = 0;
-    const specialSpans = []; // Зберігаємо посилання на особливі елементи
+    const specialSpans = []; 
+
+    // Створюємо фрагмент документа для швидшого рендерингу 10000 елементів
+    const fragment = document.createDocumentFragment();
 
     for (let i = 0; i <= 10000; i++) {
         const span = document.createElement("span");
         span.textContent = i;
-        span.style.transition = "color 0.2s"; // Для плавного зміни кольору
         span.style.padding = "2px 4px";
-        span.style.borderRadius = "2px";
+        span.style.color = "#222"; // Майже невидимі на чорному фоні
+        span.style.transition = "color 0.1s";
 
-        if (specialNumbers.includes(i)) {
-            span.classList.add("special-number"); // Додаємо клас для ідентифікації
-            span.setAttribute("data-number", i); // Зберігаємо число
-            specialSpans.push(span); // Додаємо до списку
+        // Перевіряємо, чи є число особливим
+        const isSpecial = specialNumbers.includes(i);
+
+        if (isSpecial) {
+            span.classList.add("special-number");
+            // Тільки для особливих чисел додаємо реакцію на курсор
+            span.onmouseover = function() {
+                if (this.style.color !== "red") {
+                    this.style.color = "red"; // Світиться червоним при наведенні
+                }
+            };
+            
+            span.onmouseout = function() {
+                // Якщо ще не клікнули (не зафіксували), повертаємо колір назад
+                if (!this.classList.contains("activated")) {
+                    this.style.color = "#222";
+                }
+            };
+
+            span.onclick = function() {
+                if (!this.classList.contains("activated")) {
+                    this.classList.add("activated");
+                    this.style.color = "red";
+                    this.style.fontWeight = "bold";
+                    this.style.textShadow = "0 0 10px red";
+                    
+                    foundSpecialCount++;
+                    
+                    // Зберігаємо для фінального екрану
+                    const clone = this.cloneNode(true);
+                    specialSpans.push(clone);
+
+                    if (foundSpecialCount === specialNumbers.length) {
+                        setTimeout(() => revealFinalMessage(numbersGrid, specialSpans), 500);
+                    }
+                }
+            };
+        } else {
+            // Для всіх інших чисел курсор нічого не робить
+            span.style.cursor = "default";
         }
 
-        span.onmouseover = function() {
-            if (this.style.color !== "red") { // Не змінювати, якщо вже червоний (активований)
-                this.style.color = "lightcoral";
-            }
-        };
-        span.onmouseout = function() {
-            if (this.style.color !== "red") {
-                this.style.color = "#333";
-            }
-        };
-        span.onclick = function() {
-            if (this.classList.contains("special-number") && this.style.color !== "red") {
-                this.style.color = "red";
-                this.style.fontWeight = "bold";
-                foundSpecialCount++;
-                if (foundSpecialCount === specialNumbers.length) {
-                    revealFinalMessage(numbersGrid, specialSpans);
-                }
-            } else if (!this.classList.contains("special-number")) {
-                // Додатковий ефект для кліку на звичайну цифру (опціонально)
-                this.style.color = "darkgray";
-            }
-        };
-
-        numbersGrid.appendChild(span);
+        fragment.appendChild(span);
     }
+    
+    numbersGrid.appendChild(fragment);
 }
 
 function revealFinalMessage(grid, specialSpans) {
-    grid.innerHTML = ""; // Очищаємо всю сітку
-    grid.style.flexDirection = "column"; // Розташовуємо елементи вертикально
-    grid.style.justifyContent = "center"; // Центруємо
-    grid.style.fontSize = "5em"; // Великі цифри
+    grid.innerHTML = ""; 
+    grid.style.flexDirection = "column";
+    grid.style.justifyContent = "center";
+    grid.style.fontSize = "6em"; 
 
+    // Виводимо знайдені цифри
     specialSpans.forEach(span => {
         span.style.margin = "10px";
-        span.style.color = "red"; // Забезпечуємо червоний колір
-        span.style.textShadow = "0 0 15px red";
         grid.appendChild(span);
     });
 
-    const finalSignature = document.createElement("div");
-    finalSignature.textContent = "Чекаю тебе, солоденький";
-    finalSignature.style.fontSize = "1.5em";
-    finalSignature.style.color = "white";
-    finalSignature.style.marginTop = "30px";
-    grid.appendChild(finalSignature);
+    const finalLabel = document.createElement("div");
+    finalLabel.textContent = "Чекаю тебе, солоденький";
+    finalLabel.style.fontSize = "0.3em"; // Відносно 6em основного тексту
+    finalLabel.style.color = "white";
+    finalLabel.style.marginTop = "20px";
+    finalLabel.style.fontStyle = "italic";
+    grid.appendChild(finalLabel);
 }
     
 
