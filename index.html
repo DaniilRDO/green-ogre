@@ -2,257 +2,180 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<title>GREEN OGRE PROTOCOL</title>
+<title>SECURE TERMINAL</title>
 
 <style>
 body {
-    margin: 0;
     background: black;
-    color: #00ff00;
-    font-family: "Courier New", monospace;
-    overflow-y: auto;
+    color: #00ff66;
+    font-family: monospace;
+    padding: 20px;
 }
 
 .hidden { display: none; }
-#container {
-    padding: 30px;
-    max-width: 1000px;
-    margin: auto;
-}
 
-#text {
+#terminal {
     white-space: pre-wrap;
-    line-height: 1.6;
+    min-height: 200px;
+    margin-bottom: 20px;
 }
 
-input {
+input, button {
     background: black;
-    border: 1px solid #00ff00;
-    color: #00ff00;
-    font-size: 18px;
-    padding: 8px;
-    margin-top: 10px;
-    width: 100%;
-}
-
-input:focus {
-    outline: none;
+    color: #00ff66;
+    border: 1px solid #00ff66;
+    font-family: monospace;
+    padding: 6px;
 }
 
 #timer {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    font-size: 22px;
-    letter-spacing: 2px;
+    font-size: 26px;
+    margin-bottom: 15px;
 }
 
 .panic {
+    background: #200;
     color: red;
     animation: blink 1s infinite;
 }
 
-@keyframes blink {
-    50% { opacity: 0; }
+.fake-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 25px;
 }
 
-.field-container {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 40px;
-    gap: 20px;
-}
-
-.fake-field {
-    width: 18%;
+.fake-box label {
+    display: block;
+    margin-bottom: 6px;
     text-align: center;
+    opacity: 0.7;
 }
 
-.label {
-    margin-bottom: 10px;
+.quiz-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
 }
 
-.hidden {
-    display: none !important;
-    visibility: hidden;
+.light {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #300;
 }
-
+.light.green { background: #00ff66; }
+.light.red { background: red; }
 
 .screamer {
     position: fixed;
     inset: 0;
     background: black;
+    z-index: 999;
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 999;
 }
-
 .screamer img {
     max-width: 100%;
     max-height: 100%;
-}
-
-.crash {
-    font-size: 32px;
-    color: red;
-    text-align: center;
+    object-fit: contain;
 }
 </style>
 </head>
 
 <body>
 
-<div id="timer">30:00</div>
+<div id="timer">05:00</div>
+<div id="terminal"></div>
 
-<div id="container">
-    <div id="text"></div>
-    <input id="mainInput" placeholder="Введіть код та натисніть Enter">
-</div>
+<input id="input" placeholder="ENTER CODE">
 
-<!-- Скримери -->
-<div id="screamerTest" class="screamer hidden">
-    <img src="test.jpg">
-</div>
-
-<div id="screamerEnd" class="screamer hidden">
-    <img src="endtimes.jpg">
-</div>
+<div id="fakeFields" class="hidden"></div>
+<div id="quiz" class="hidden"></div>
 
 <audio id="beep" src="beep.mp3"></audio>
+<audio id="scream1" src="test.mp3"></audio>
+<audio id="screamEnd" src="endtimes.mp3"></audio>
 
 <script>
-// Гарантовано ховаємо скримери при старті
-window.onload = () => {
-    document.getElementById("screamerTest").classList.add("hidden");
-    document.getElementById("screamerEnd").classList.add("hidden");
-};
-
-    
-/* ===== ГЛОБАЛЬНІ ЗМІННІ ===== */
-let timeLeft = 1800;
-let currentStage = 1;
+let stage = 1;
+let timeLeft = 600;
 let timerInterval;
 
-/* ===== ТАЙМЕР ===== */
+const terminal = document.getElementById("terminal");
+const input = document.getElementById("input");
+const timerDisplay = document.getElementById("timer");
+const beep = document.getElementById("beep");
+
+function typeText(text, cb) {
+    let i = 0;
+    terminal.innerHTML = "";
+    const interval = setInterval(() => {
+        terminal.innerHTML += text[i++];
+        if (i >= text.length) {
+            clearInterval(interval);
+            if (cb) cb();
+        }
+    }, 18);
+}
+
 function startTimer() {
     timerInterval = setInterval(() => {
         timeLeft--;
-        updateTimer();
+        if (timeLeft <= 60) document.body.classList.add("panic");
+        if (timeLeft <= 0) endGame();
 
-        if (timeLeft <= 60) {
-            document.getElementById("timer").classList.add("panic");
-        }
-
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            document.getElementById("screamerEnd").classList.remove("hidden");
-        }
+        const m = String(Math.floor(timeLeft/60)).padStart(2,"0");
+        const s = String(timeLeft%60).padStart(2,"0");
+        timerDisplay.textContent = `${m}:${s}`;
     }, 1000);
 }
 
-function updateTimer() {
-    let m = Math.floor(timeLeft / 60).toString().padStart(2, "0");
-    let s = (timeLeft % 60).toString().padStart(2, "0");
-    document.getElementById("timer").innerText = `${m}:${s}`;
+function screamer(audioId, imgName) {
+    const div = document.createElement("div");
+    div.className = "screamer";
+    div.innerHTML = `<img src="${imgName}.jpg">`;
+    document.body.appendChild(div);
+    document.getElementById(audioId).play();
+    setTimeout(()=>div.remove(),1500);
 }
 
-/* ===== ТЕКСТ З ДРУКОМ ===== */
-function typeText(text, callback) {
-    const el = document.getElementById("text");
-    el.innerText = "";
-    let i = 0;
-
-    const interval = setInterval(() => {
-        el.innerText += text[i];
-        i++;
-        if (i >= text.length) {
-            clearInterval(interval);
-            if (callback) callback();
-        }
-    }, 20);
+function endGame() {
+    clearInterval(timerInterval);
+    screamer("screamEnd", "endtimes");
 }
 
-/* ===== СТАРТ ===== */
-const startText = `
-АГЕНТЕ [ІМʼЯ],
+input.addEventListener("keydown", e => {
+    beep.play();
+    if (e.key !== "Enter") return;
+    const code = input.value.toUpperCase();
+    input.value = "";
 
-якщо ви читаєте це повідомлення — значить система дала збій.
-Або ми. Або ви.
+    if (code === "TEST") screamer("scream1", "test");
+    if (code === "TIME+") timeLeft += 300;
+    if (code === "ENDGAME") timeLeft = 1;
 
-Аналітичний Відділ фіксує аномальну активність, повʼязану з кодовою назвою GREEN OGRE.
-
-Спочатку це виглядало як жарт.
-Потім — як серія безглуздих артефактів.
-А тепер — як загроза, природу якої ми не до кінця розуміємо.
-
-У матеріалах фігурують:
-– огр зеленого кольору
-– тварини, які не повинні бути тут
-– предмети, що не мають сенсу
-– і ви
-
-Ми не знаємо, чому саме ви були обрані.
-Але всі попередні кандидати не витримали абсурду.
-
-Для отримання доступу до Обʼєкта Ω вам необхідно пройти 6 етапів перевірки.
-
-Шукай приховане серед того що бачиш, не довіряй друзям, власним очам, лише своєму павучому відчуттю.
-Десь серед УСЬОГО тексту, який буде зустрчатися тобі будуть скриті посилання, частинки пазлів і гумору.
-
-Ми довіряємо цю місію тобі, лише тобі. Ніхто інший не зможе впоратися з цим завданням. Цей текст немає жодного значення, просто
-треба щоб він виглядав круто й загадково. Єдинне що дійсно важливе, і сподіваюсь ти це не пропустиш, це час. Він спливає, так швидко, 
-що навіть твій друг не може зробити щось корисне бо постійно з тобою грає. Так от, агенту, якщо він закінчиться, ти ніколи не дійдеш до фінального
-етапу, і це означає що ти повільний лохобан, тому Сося передає привіт, і можеш починати.
-
-Не шукайте логіку.
-Почніть з Конверта №1.
-`;
-
-typeText(startText);
-startTimer();
-
-/* ===== ОСНОВНИЙ ВВІД ===== */
-const mainInput = document.getElementById("mainInput");
-
-mainInput.addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-        document.getElementById("beep").play();
-        handleInput(mainInput.value.trim());
-        mainInput.value = "";
-    }
+    advance(code);
 });
 
-/* ===== ЛОГІКА КОДІВ ===== */
-function handleInput(code) {
-
-    if (code === "TEST") {
-    document.getElementById("screamerTest").classList.remove("hidden");
-    new Audio("test.mp3").play();
-    new Audio("endtimes.mp3").play();
-    return;
-    }
-
-
-    if (code === "TIME+") {
-        timeLeft += 300;
-        updateTimer();
-        return;
-    }
-
-    if (code === "ENDGAME") {
-        timeLeft = 1;
-        return;
-    }
-
-    if (currentStage === 1 && code === "НЕТУРУЧЕКНЕТКОНФЕТОК") {
+function advance(code) {
+    if (stage === 1 && code === "НЕТУРУЧЕКНЕТКОНФЕТОК") {
+        stage = 2;
+        input.classList.add("hidden");
         stage2();
+    }
+    else if (stage === 3 && code === "CODE3") {
+        stage = 4;
+        startCode4();
     }
 }
 
-/* ===== ЕТАП 2 ===== */
+    /* ===== ЕТАП 2 ===== */
 function stage2() {
-    currentStage = 2;
+    
+    Stage = 2;
     mainInput.classList.add("hidden");
 
     const stage2Text = `
@@ -281,7 +204,7 @@ function stage2() {
     typeText(stage2Text, createFields);
 }
 
-/* ===== ПОЛЯ ===== */
+    /* ===== ПОЛЯ ===== */
 function createFields() {
     const container = document.getElementById("container");
 
@@ -319,12 +242,98 @@ function createFields() {
     });
 
     container.appendChild(fields);
+}   
+
+function stage3() {
+
 }
 
-/* ===== ЕТАП 3 (ЗАГОТОВКА) ===== */
-function stage3() {
-    document.body.innerHTML = "<h1 style='color:#00ff00;text-align:center;margin-top:40vh'>ЕТАП 3 АКТИВОВАНО</h1>";
+function startCode4() {
+    const quiz = document.getElementById("quiz");
+    quiz.classList.remove("hidden");
+    quiz.innerHTML="";
+
+    const q = [
+        ["Повна назва ДДМА","ДОНБАСЬКА ДЕРЖАВНА МАШИНОБУДІВНА АКАДЕМІЯ"],
+        ["Те, що неможливо продати","СЛОН"],
+        ["Шкода гачка","150"],
+        ["Відеокарта","GTX 4060"],
+        ["Що в кармані","НІЧОГО"],
+        ["Традиційний подарунок","АНТИСТРЕС"],
+        ["Код","CODE4"]
+    ];
+
+    q.forEach(([t,a])=>{
+        const d=document.createElement("div");
+        d.className="quiz-item";
+        const i=document.createElement("input");
+        i.placeholder=t;
+        const l=document.createElement("div");
+        l.className="light";
+        i.onkeydown=e=>{
+            if(e.key!=="Enter")return;
+            if(i.value.toUpperCase()===a){
+                l.className="light green";
+                i.disabled=true;
+                checkQuiz();
+            } else l.className="light red";
+        };
+        d.append(i,l);
+        quiz.appendChild(d);
+    });
 }
+
+function checkQuiz(){
+    if([...document.querySelectorAll(".light")]
+        .every(l=>l.classList.contains("green"))){
+        startCode5();
+    }
+}
+
+function startCode5(){
+    timerDisplay.style.display="none";
+    document.body.innerHTML="<pre style='color:red'>SYSTEM FAILURE\nPRESS F</pre>";
+    document.addEventListener("keydown",e=>{
+        if(e.key.toUpperCase()==="F") location.reload();
+    });
+}
+
+typeText(
+`АГЕНТЕ [ІМʼЯ],
+
+якщо ви читаєте це повідомлення — значить система дала збій.
+Або ми. Або ви.
+
+Аналітичний Відділ фіксує аномальну активність, повʼязану з кодовою назвою GREEN OGRE.
+
+Спочатку це виглядало як жарт.
+Потім — як серія безглуздих артефактів.
+А тепер — як загроза, природу якої ми не до кінця розуміємо.
+
+У матеріалах фігурують:
+– огр зеленого кольору
+– тварини, які не повинні бути тут
+– предмети, що не мають сенсу
+– і ви
+
+Ми не знаємо, чому саме ви були обрані.
+Але всі попередні кандидати не витримали абсурду.
+
+Для отримання доступу до Обʼєкта Ω вам необхідно пройти 6 етапів перевірки.
+
+Шукай приховане серед того що бачиш, не довіряй друзям, власним очам, лише своєму павучому відчуттю.
+Десь серед УСЬОГО тексту, який буде зустрчатися тобі будуть скриті посилання, частинки пазлів і гумору.
+
+Ми довіряємо цю місію тобі, лише тобі. Ніхто інший не зможе впоратися з цим завданням. Цей текст немає жодного значення, просто
+треба щоб він виглядав круто й загадково. Єдинне що дійсно важливе, і сподіваюсь ти це не пропустиш, це час. Він спливає, так швидко, 
+що навіть твій друг не може зробити щось корисне бо постійно з тобою грає. Так от, агенту, якщо він закінчиться, ти ніколи не дійдеш до фінального
+етапу, і це означає що ти повільний лохобан, тому Сося передає привіт, і можеш починати.
+
+Не шукайте логіку.
+Почніть з Конверта №1.
+`,
+startTimer
+);
 </script>
 
 </body>
