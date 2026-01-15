@@ -72,8 +72,10 @@ input:focus {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
+    visibility: hidden;
 }
+
 
 .screamer {
     position: fixed;
@@ -110,17 +112,22 @@ input:focus {
 <!-- Скримери -->
 <div id="screamerTest" class="screamer hidden">
     <img src="test.jpg">
-    <audio src="test.mp3" autoplay></audio>
 </div>
 
 <div id="screamerEnd" class="screamer hidden">
     <img src="endtimes.jpg">
-    <audio src="endtimes.mp3" autoplay></audio>
 </div>
 
 <audio id="beep" src="beep.mp3"></audio>
 
 <script>
+// Гарантовано ховаємо скримери при старті
+window.onload = () => {
+    document.getElementById("screamerTest").classList.add("hidden");
+    document.getElementById("screamerEnd").classList.add("hidden");
+};
+
+    
 /* ===== ГЛОБАЛЬНІ ЗМІННІ ===== */
 let timeLeft = 1800;
 let currentStage = 1;
@@ -219,9 +226,12 @@ mainInput.addEventListener("keydown", e => {
 function handleInput(code) {
 
     if (code === "TEST") {
-        document.getElementById("screamerTest").classList.remove("hidden");
-        return;
+    document.getElementById("screamerTest").classList.remove("hidden");
+    new Audio("test.mp3").play();
+    new Audio("endtimes.mp3").play();
+    return;
     }
+
 
     if (code === "TIME+") {
         timeLeft += 300;
