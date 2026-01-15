@@ -142,7 +142,7 @@ input, button {
 
 
 <div id="stage6-container" class="hidden" style="text-align: center; padding-top: 50px;">
-    <div id="click-counter" style="font-size: 72px; font-weight: bold; margin-bottom: 20px;">500</div>
+    <div id="click-counter" style="font-size: 72px; font-weight: bold; margin-bottom: 20px;">10</div>
     <div id="final-code-display" class="hidden" style="font-size: 80px; color: gold; text-shadow: 0 0 20px yellow; margin-bottom: 20px;">СДВГ</div>
     
     <button id="mega-button" style="width: 200px; height: 200px; border-radius: 50%; font-size: 24px; cursor: pointer; border: 5px solid white;">ТИЦЯЙ!</button>
@@ -698,7 +698,7 @@ function finishClicking() {
         if (e.key === "Enter") {
             if (input6.value.toUpperCase() === "СДВГ") {
                 alert("ПРОТОКОЛ ПОРУШЕНО. ПЕРЕХІД ДО ЕТАПУ 7");
-                // stage7(); // Виклик наступного етапу
+                stage7(); // Виклик наступного етапу
             } else {
                 timeLeft -= 100; // Жорсткий штраф
                 input6.value = "";
