@@ -82,6 +82,43 @@ input, button {
     max-height: 100%;
     object-fit: contain;
 }
+
+
+.alarm-bg {
+    background: radial-gradient(circle, #400 0%, #000 100%) !important;
+    animation: alarm-blink 0.5s infinite alternate;
+}
+
+@keyframes alarm-blink {
+    from { background-color: #000; }
+    to { background-color: #600; }
+}
+
+.scrolling-text {
+    position: absolute;
+    white-space: nowrap;
+    font-size: 50px;
+    font-weight: bold;
+    color: red;
+    animation: scroll-left-to-right 10s linear forwards;
+}
+
+@keyframes scroll-left-to-right {
+    from { left: -100%; }
+    to { left: 100%; }
+}
+
+#blackout {
+    position: fixed;
+    inset: 0;
+    background: black;
+    z-index: 10000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    color: #111; /* Дуже тьмяний текст */
+}
+    
 </style>
 </head>
 
@@ -122,6 +159,57 @@ input, button {
 <div id="stage7-container" class="hidden">
     <div id="quiz-fields" style="display: grid; gap: 20px; margin-top: 20px;"></div>
 </div>
+
+
+
+    <div id="stage8-container" class="hidden" style="text-align: center;">
+    <div id="jameson-wrap">
+        <label for="photo-upload" style="cursor: pointer; border: 2px dashed #00ff66; padding: 20px; display: inline-block;">
+            ЗАВАНТАЖИТИ ФОТО ПАВУКА (JPEG/PNG)
+        </label>
+        <input type="file" id="photo-upload" accept="image/*" style="display: none;">
+    </div>
+    <div id="upload-status" style="margin-top: 20px; color: yellow;"></div>
+</div>
+
+<audio id="spidermanAudio" src="людинапавук.mp3"></audio>
+
+
+
+
+<div id="stage10-container" class="hidden" style="text-align: center;">
+    <div id="ogre-dialogue" style="font-size: 1.2em; line-height: 1.5; margin-bottom: 30px;"></div>
+    
+    <div id="restart-section" style="margin-bottom: 50px;">
+        <button id="restart-button" style="padding: 15px 30px; font-size: 1.5em; background: #550000; color: white; border: 3px solid red; cursor: pointer;">
+            РЕСТАРТ
+        </button>
+    </div>
+
+    <div id="final-choice-section" style="margin-top: 30px;">
+        <h2 style="color: #00ff66; margin-bottom: 15px;">СПАСТИ:</h2>
+        <select id="save-option" style="background: black; color: #00ff66; border: 1px solid #00ff66; padding: 10px; font-size: 1em; width: 300px;">
+            <option value="1">10 дітей</option>
+            <option value="2">не обязательно черных</option>
+            <option value="3">или</option>
+            <option value="4">ахахахахахахах</option>
+            <option value="5">МЕГА ПАЧКА ЧИПСОВ</option>
+            <option value="6">с КРАБОМ ллллллллееееееейс</option>
+        </select>
+        <button id="send-choice-button" style="margin-left: 10px; padding: 10px 20px; background: #004400; color: white; border: 1px solid #00ff66; cursor: pointer;">
+            НАДІСЛАТИ
+        </button>
+    </div>
+</div>
+
+<audio id="finalScreamerAudio" src="фінальнийскример.mp3"></audio>
+
+
+<div id="stage11-container" class="hidden" style="position: fixed; inset: 0; background: black; overflow: hidden; z-index: 10001;">
+    <div id="numbers-grid" style="display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; align-items: center; height: 100%; font-size: 1.2em; color: #333; cursor: pointer;">
+        </div>
+</div>
+
 
     
     
@@ -733,16 +821,215 @@ function checkStage7Complete() {
     if (remainingQuestions.length === 0) {
         document.getElementById("stage7-container").innerHTML = "<h2 style='color:lime; text-align:center;'>ВСІ КОДИ ПРИЙНЯТО. ПЕРЕХІД ДО ЕТАПУ 8...</h2>";
         setTimeout(() => {
-            // stage8(); // Сюди додасте виклик 8 етапу
+            stage8(); // Сюди додасте виклик 8 етапу
             alert("Етап 7 пройдено!"); 
         }, 2000);
     }
 }
     
+/* ===== ЕТАП 8 ===== */
+    
+function stage8() {
+    // Ховаємо Етап 7
+    document.getElementById("stage7-container").classList.add("hidden");
+    terminal.innerHTML = "";
+
+    const stage8Text = `Ой-ой-ой, що це? в нас якесь термінове звернення від Джей Джона Джеймсона!!!
+
+- АЛО, МЕНЕ ЧУТНО? 
+Так от, ПРИВІТ ПІТЕР, ой, не та репліка.
+Чому ти досі не приніс мені фотографії Людини-Павука!?
+
+ХУТКО!!!!!!!!`;
+
+    typeText(stage8Text, () => {
+        document.getElementById("stage8-container").classList.remove("hidden");
+        
+        const fileInput = document.getElementById("photo-upload");
+        fileInput.onchange = function() {
+            if (this.files && this.files[0]) {
+                // Граємо аудіо
+                const audio = document.getElementById("spidermanAudio");
+                if(audio) audio.play().catch(e => console.log("Audio play error"));
+
+                document.getElementById("upload-status").innerHTML = "ФОТО ОТРИМАНО! АНАЛІЗ... ПЕРЕВІРКА НА павукообразність...";
+                
+                // Через 30 секунд перехід
+                setTimeout(() => {
+                    stage9();
+                }, 30000);
+            }
+        };
+    });
+}
+
 
     
+/* ===== ЕТАП 9 ===== */
+
+function stage9() {
+    // 1. Очищуємо все
+    document.getElementById("stage8-container").classList.add("hidden");
+    document.body.classList.add("alarm-bg");
+    terminal.innerHTML = "";
+
+    // 2. Текст тривоги
+    const alarmText = document.createElement("div");
+    alarmText.className = "scrolling-text";
+    alarmText.textContent = "УВАГА! УВАГА! ЦЕ НЕ НАВЧАЛЬНА ТРИВОГА!";
+    document.body.appendChild(alarmText);
+
+    // 3. Через 10 секунд — повна темрява
+    setTimeout(() => {
+        alarmText.remove();
+        document.body.classList.remove("alarm-bg");
+        
+        // Створюємо "чорний екран" поверх усього
+        let blackout = document.getElementById("blackout");
+        if (!blackout) {
+            blackout = document.createElement("div");
+            blackout.id = "blackout";
+            document.body.appendChild(blackout);
+        }
+        blackout.style.display = "flex";
+        blackout.innerHTML = "PRESS [F] TO REBOOT SYSTEM";
+
+        // 4. Очікування натискання F
+        const handleF = (e) => {
+            if (e.key.toLowerCase() === 'f' || e.key.toLowerCase() === 'а') {
+                document.removeEventListener('keydown', handleF);
+                blackout.style.display = "none";
+                stage10(); // Перехід до фіналу
+            }
+        };
+        document.addEventListener('keydown', handleF);
+    }, 10000);
+}
+
+/* ===== ЕТАП 10 ===== */
+
+function stage10() {
+    // Ховаємо blackout overlay
+    const blackout = document.getElementById("blackout");
+    if (blackout) blackout.style.display = "none";
+    document.body.classList.remove("alarm-bg"); // Видаляємо червоне мерехтіння
+
+    terminal.innerHTML = "";
+    document.getElementById("stage10-container").classList.remove("hidden");
+
+    const initialOgreText = `ХАХАХАХАХА а ось і я, GREEN OGRE
+Не очікував що ти з'явишся так швидко.... 
+Ой, а що це за кнопочка тут біля мене? 
+
+Хай там як, ти не наважишся зробити цей вибір.`;
+    
+    document.getElementById("ogre-dialogue").innerHTML = initialOgreText;
+
+    const restartButton = document.getElementById("restart-button");
+    const finalChoiceSection = document.getElementById("final-choice-section");
+
+    restartButton.onclick = () => {
+        // Запускаємо фінальний скример
+        screamer("finalScreamerAudio", "фінальнийскример");
+        
+        // Змінюємо текст після скримера
+        setTimeout(() => {
+            const afterScreamerText = `Ти реально думав що мені нічого робити, як тільки-но зациклити мій кашерно-неймовірний квест? 
+Якір-мені в сраку, так ти сміливий.
+
+Отже, це останній вибір, тепер все в твоїх брудних лапах і ти отримаєш той дурний код.`;
+            document.getElementById("ogre-dialogue").innerHTML = afterScreamerText;
+            restartButton.remove(); // Прибираємо кнопку рестарту
+        }, 1500); // Час скримера
+    };
+
+    // Логіка для вибору та переходу на Етап 11
+    document.getElementById("send-choice-button").onclick = () => {
+        stage11();
+    };
+}
+
+
+
+    
+/* ===== ЕТАП 11 ===== */
+function stage11() {
+    // Ховаємо Етап 10
+    document.getElementById("stage10-container").classList.add("hidden");
+    terminal.innerHTML = "";
+    document.getElementById("stage11-container").classList.remove("hidden");
+
+    const numbersGrid = document.getElementById("numbers-grid");
+    const specialNumbers = [38, 0, 994, 831, 255]; // Це були ваші цифри, я додав 0 для прикладу
+    let foundSpecialCount = 0;
+    const specialSpans = []; // Зберігаємо посилання на особливі елементи
+
+    for (let i = 0; i <= 10000; i++) {
+        const span = document.createElement("span");
+        span.textContent = i;
+        span.style.transition = "color 0.2s"; // Для плавного зміни кольору
+        span.style.padding = "2px 4px";
+        span.style.borderRadius = "2px";
+
+        if (specialNumbers.includes(i)) {
+            span.classList.add("special-number"); // Додаємо клас для ідентифікації
+            span.setAttribute("data-number", i); // Зберігаємо число
+            specialSpans.push(span); // Додаємо до списку
+        }
+
+        span.onmouseover = function() {
+            if (this.style.color !== "red") { // Не змінювати, якщо вже червоний (активований)
+                this.style.color = "lightcoral";
+            }
+        };
+        span.onmouseout = function() {
+            if (this.style.color !== "red") {
+                this.style.color = "#333";
+            }
+        };
+        span.onclick = function() {
+            if (this.classList.contains("special-number") && this.style.color !== "red") {
+                this.style.color = "red";
+                this.style.fontWeight = "bold";
+                foundSpecialCount++;
+                if (foundSpecialCount === specialNumbers.length) {
+                    revealFinalMessage(numbersGrid, specialSpans);
+                }
+            } else if (!this.classList.contains("special-number")) {
+                // Додатковий ефект для кліку на звичайну цифру (опціонально)
+                this.style.color = "darkgray";
+            }
+        };
+
+        numbersGrid.appendChild(span);
+    }
+}
+
+function revealFinalMessage(grid, specialSpans) {
+    grid.innerHTML = ""; // Очищаємо всю сітку
+    grid.style.flexDirection = "column"; // Розташовуємо елементи вертикально
+    grid.style.justifyContent = "center"; // Центруємо
+    grid.style.fontSize = "5em"; // Великі цифри
+
+    specialSpans.forEach(span => {
+        span.style.margin = "10px";
+        span.style.color = "red"; // Забезпечуємо червоний колір
+        span.style.textShadow = "0 0 15px red";
+        grid.appendChild(span);
+    });
+
+    const finalSignature = document.createElement("div");
+    finalSignature.textContent = "Чекаю тебе, солоденький";
+    finalSignature.style.fontSize = "1.5em";
+    finalSignature.style.color = "white";
+    finalSignature.style.marginTop = "30px";
+    grid.appendChild(finalSignature);
+}
     
 
+
+/* ===== ЕТАП 12 ===== */
+    
     
 // Початковий запуск
 typeText("АГЕНТЕ... Система чекає на КОД 1...", startTimer);
@@ -750,40 +1037,6 @@ typeText("АГЕНТЕ... Система чекає на КОД 1...", startTime
 // Запуск першої сцени
 typeText(`АГЕНТЕ, система дала збій... Шукайте код у Конверті №1.`, startTimer);
 
-function stage44() {
-    const quiz = document.getElementById("quiz");
-    quiz.classList.remove("hidden");
-    quiz.innerHTML="";
-
-    const q = [
-        ["Повна назва ДДМА","ДОНБАСЬКА ДЕРЖАВНА МАШИНОБУДІВНА АКАДЕМІЯ"],
-        ["Те, що неможливо продати","СЛОН"],
-        ["Шкода гачка","150"],
-        ["Відеокарта","GTX 4060"],
-        ["Що в кармані","НІЧОГО"],
-        ["Традиційний подарунок","АНТИСТРЕС"],
-        ["Код","CODE4"]
-    ];
-
-    q.forEach(([t,a])=>{
-        const d=document.createElement("div");
-        d.className="quiz-item";
-        const i=document.createElement("input");
-        i.placeholder=t;
-        const l=document.createElement("div");
-        l.className="light";
-        i.onkeydown=e=>{
-            if(e.key!=="Enter")return;
-            if(i.value.toUpperCase()===a){
-                l.className="light green";
-                i.disabled=true;
-                checkQuiz();
-            } else l.className="light red";
-        };
-        d.append(i,l);
-        quiz.appendChild(d);
-    });
-}
 
 function checkQuiz(){
     if([...document.querySelectorAll(".light")]
