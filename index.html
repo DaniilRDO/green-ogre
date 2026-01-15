@@ -2,275 +2,171 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<title>SECURE TERMINAL</title>
+<title>GREEN OGRE PROTOCOL</title>
 
 <style>
 body {
+    margin: 0;
     background: black;
-    color: #00ff66;
-    font-family: monospace;
-    padding: 20px;
+    color: #00ff00;
+    font-family: "Courier New", monospace;
+    overflow: hidden;
 }
 
-.hidden { display: none; }
-
-#terminal {
-    white-space: pre-wrap;
-    min-height: 200px;
-    margin-bottom: 20px;
+#container {
+    padding: 30px;
+    max-width: 1000px;
+    margin: auto;
 }
 
-input, button {
+#text {
+    white-space: pre-line;
+    line-height: 1.6;
+}
+
+input {
     background: black;
-    color: #00ff66;
-    border: 1px solid #00ff66;
-    font-family: monospace;
-    padding: 6px;
+    border: 1px solid #00ff00;
+    color: #00ff00;
+    font-size: 18px;
+    padding: 8px;
+    margin-top: 10px;
+    width: 100%;
+}
+
+input:focus {
+    outline: none;
 }
 
 #timer {
-    font-size: 26px;
-    margin-bottom: 15px;
+    position: fixed;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
 }
 
 .panic {
-    background: #200;
     color: red;
+    animation: blink 1s infinite;
 }
 
-.fake-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 25px;
+@keyframes blink {
+    50% { opacity: 0; }
 }
 
-.fake-box label {
-    display: block;
-    margin-bottom: 6px;
-    text-align: center;
-    opacity: 0.7;
-}
-
-.quiz-item {
+.field-container {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
+    justify-content: space-between;
+    margin-top: 40px;
+    gap: 20px;
 }
 
-.light {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #300;
+.fake-field {
+    width: 18%;
+    text-align: center;
 }
-.light.green { background: #00ff66; }
-.light.red { background: red; }
+
+.label {
+    margin-bottom: 10px;
+}
+
+.hidden {
+    display: none;
+}
 
 .screamer {
     position: fixed;
     inset: 0;
     background: black;
-    z-index: 999;
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 999;
 }
+
 .screamer img {
     max-width: 100%;
     max-height: 100%;
-    object-fit: contain;
+}
+
+.crash {
+    font-size: 32px;
+    color: red;
+    text-align: center;
 }
 </style>
 </head>
 
 <body>
 
-<div id="timer">10:00</div>
-<div id="terminal"></div>
+<div id="timer">30:00</div>
 
-<input id="input" placeholder="ENTER CODE">
+<div id="container">
+    <div id="text"></div>
+    <input id="mainInput" placeholder="Введіть код та натисніть Enter">
+</div>
 
-<div id="fakeFields" class="hidden"></div>
-<div id="quiz" class="hidden"></div>
+<!-- Скримери -->
+<div id="screamerTest" class="screamer hidden">
+    <img src="test.jpg">
+    <audio src="test.mp3" autoplay></audio>
+</div>
+
+<div id="screamerEnd" class="screamer hidden">
+    <img src="endtimes.jpg">
+    <audio src="endtimes.mp3" autoplay></audio>
+</div>
 
 <audio id="beep" src="beep.mp3"></audio>
-<audio id="scream1" src="test.mp3"></audio>
-<audio id="screamEnd" src="endtimes.mp3"></audio>
 
 <script>
-let stage = 1;
-let timeLeft = 600;
+/* ===== ГЛОБАЛЬНІ ЗМІННІ ===== */
+let timeLeft = 1800;
+let currentStage = 1;
 let timerInterval;
 
-const terminal = document.getElementById("terminal");
-const input = document.getElementById("input");
-const timerDisplay = document.getElementById("timer");
-const beep = document.getElementById("beep");
-
-function typeText(text, cb) {
-    let i = 0;
-    terminal.innerHTML = "";
-    const interval = setInterval(() => {
-        terminal.innerHTML += text[i++];
-        if (i >= text.length) {
-            clearInterval(interval);
-            if (cb) cb();
-        }
-    }, 18);
-}
-
+/* ===== ТАЙМЕР ===== */
 function startTimer() {
     timerInterval = setInterval(() => {
         timeLeft--;
-        if (timeLeft <= 60) document.body.classList.add("panic");
-        if (timeLeft <= 0) endGame();
+        updateTimer();
 
-        const m = String(Math.floor(timeLeft/60)).padStart(2,"0");
-        const s = String(timeLeft%60).padStart(2,"0");
-        timerDisplay.textContent = `${m}:${s}`;
+        if (timeLeft <= 60) {
+            document.getElementById("timer").classList.add("panic");
+        }
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            document.getElementById("screamerEnd").classList.remove("hidden");
+        }
     }, 1000);
 }
 
-function screamer(audioId, imgName) {
-    const div = document.createElement("div");
-    div.className = "screamer";
-    div.innerHTML = `<img src="${imgName}.jpg">`;
-    document.body.appendChild(div);
-    document.getElementById(audioId).play();
-    setTimeout(()=>div.remove(),1500);
+function updateTimer() {
+    let m = Math.floor(timeLeft / 60).toString().padStart(2, "0");
+    let s = (timeLeft % 60).toString().padStart(2, "0");
+    document.getElementById("timer").innerText = `${m}:${s}`;
 }
 
-function endGame() {
-    clearInterval(timerInterval);
-    screamer("screamEnd", "endtimes");
+/* ===== ТЕКСТ З ДРУКОМ ===== */
+function typeText(text, callback) {
+    const el = document.getElementById("text");
+    el.innerText = "";
+    let i = 0;
+
+    const interval = setInterval(() => {
+        el.innerText += text[i];
+        i++;
+        if (i >= text.length) {
+            clearInterval(interval);
+            if (callback) callback();
+        }
+    }, 20);
 }
 
-input.addEventListener("keydown", e => {
-    beep.play();
-    if (e.key !== "Enter") return;
-    const code = input.value.toUpperCase();
-    input.value = "";
-
-    if (code === "TEST") screamer("scream1", "test");
-    if (code === "TIME+") timeLeft += 300;
-    if (code === "ENDGAME") timeLeft = 1;
-
-    advance(code);
-});
-
-function advance(code) {
-    if (stage === 1 && code === "CODE1") {
-        stage = 2;
-        input.classList.add("hidden");
-        startFakeFields();
-    }
-    else if (stage === 3 && code === "CODE3") {
-        stage = 4;
-        startCode4();
-    }
-}
-
-function startFakeFields() {
-    const wrap = document.getElementById("fakeFields");
-    wrap.className = "fake-grid";
-    wrap.innerHTML = "";
-
-    const correctId = "A7Q9X2"; // ✅ ПРАВИЛЬНЕ ПОЛЕ
-
-    for (let i=0;i<5;i++) {
-        const id = Math.random().toString(36).substring(2,8).toUpperCase();
-        const box = document.createElement("div");
-        box.className = "fake-box";
-
-        const label = document.createElement("label");
-        label.textContent = id;
-
-        const inp = document.createElement("input");
-
-        inp.addEventListener("keydown", e=>{
-            if(e.key!=="Enter")return;
-            if(id === correctId && inp.value.toUpperCase() === "CODE2"){
-                wrap.classList.add("hidden");
-                stage = 3;
-                input.classList.remove("hidden");
-                massiveText();
-            } else {
-                timeLeft -= 60;
-            }
-        });
-
-        box.append(label, inp);
-        wrap.appendChild(box);
-    }
-}
-
-function massiveText() {
-    typeText(
-`АНАЛІТИЧНИЙ ЗВІТ:
-ВСЕ, ЩО ВИ БАЧИТЕ — ЧАСТИНА ТЕСТУ.
-НЕ НАМАГАЙТЕСЯ ЗРОЗУМІТИ.
-СЛОВО TAKEME — КЛЮЧ.
-`, ()=>{
-        terminal.innerHTML = terminal.innerHTML.replace(
-            "TAKEME",
-            `<span onclick="advance('CODE3')">TAKEME</span>`
-        );
-    });
-}
-
-function startCode4() {
-    const quiz = document.getElementById("quiz");
-    quiz.classList.remove("hidden");
-    quiz.innerHTML="";
-
-    const q = [
-        ["Повна назва ДДМА","ДОНБАСЬКА ДЕРЖАВНА МАШИНОБУДІВНА АКАДЕМІЯ"],
-        ["Те, що неможливо продати","СЛОН"],
-        ["Шкода гачка","150"],
-        ["Відеокарта","GTX 4060"],
-        ["Що в кармані","НІЧОГО"],
-        ["Традиційний подарунок","АНТИСТРЕС"],
-        ["Код","CODE4"]
-    ];
-
-    q.forEach(([t,a])=>{
-        const d=document.createElement("div");
-        d.className="quiz-item";
-        const i=document.createElement("input");
-        i.placeholder=t;
-        const l=document.createElement("div");
-        l.className="light";
-        i.onkeydown=e=>{
-            if(e.key!=="Enter")return;
-            if(i.value.toUpperCase()===a){
-                l.className="light green";
-                i.disabled=true;
-                checkQuiz();
-            } else l.className="light red";
-        };
-        d.append(i,l);
-        quiz.appendChild(d);
-    });
-}
-
-function checkQuiz(){
-    if([...document.querySelectorAll(".light")]
-        .every(l=>l.classList.contains("green"))){
-        startCode5();
-    }
-}
-
-function startCode5(){
-    timerDisplay.style.display="none";
-    document.body.innerHTML="<pre style='color:red'>SYSTEM FAILURE\nPRESS F</pre>";
-    document.addEventListener("keydown",e=>{
-        if(e.key.toUpperCase()==="F") location.reload();
-    });
-}
-
-typeText(
-`АГЕНТЕ [ІМʼЯ],
+/* ===== СТАРТ ===== */
+const startText = `
+АГЕНТЕ [ІМʼЯ],
 
 якщо ви читаєте це повідомлення — значить система дала збій.
 Або ми. Або ви.
@@ -302,9 +198,121 @@ typeText(
 
 Не шукайте логіку.
 Почніть з Конверта №1.
-`,
-startTimer
-);
+`;
+
+typeText(startText);
+startTimer();
+
+/* ===== ОСНОВНИЙ ВВІД ===== */
+const mainInput = document.getElementById("mainInput");
+
+mainInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+        document.getElementById("beep").play();
+        handleInput(mainInput.value.trim());
+        mainInput.value = "";
+    }
+});
+
+/* ===== ЛОГІКА КОДІВ ===== */
+function handleInput(code) {
+
+    if (code === "TEST") {
+        document.getElementById("screamerTest").classList.remove("hidden");
+        return;
+    }
+
+    if (code === "TIME+") {
+        timeLeft += 300;
+        updateTimer();
+        return;
+    }
+
+    if (code === "ENDGAME") {
+        timeLeft = 1;
+        return;
+    }
+
+    if (currentStage === 1 && code === "НЕТУРУЧЕКНЕТКОНФЕТОК") {
+        stage2();
+    }
+}
+
+/* ===== ЕТАП 2 ===== */
+function stage2() {
+    currentStage = 2;
+    mainInput.classList.add("hidden");
+
+    const stage2Text = `
+Перший контакт із аномалією показав:
+стандартні методи не працюють.
+
+Агент, який покладається лише на руки, — приречений.
+
+ВАШЕ ЗАВДАННЯ:
+відкрити цей конверт БЕЗ використання рук.
+
+Дозволено:
+– рот
+– лікоть
+– коліно
+– сила тяжіння
+
+Заборонено:
+– здоровий глузд
+– допомога ззовні
+
+Пам’ятайте: якщо це виглядає тупо,
+значить ви все робите правильно.
+`;
+
+    typeText(stage2Text, createFields);
+}
+
+/* ===== ПОЛЯ ===== */
+function createFields() {
+    const container = document.getElementById("container");
+
+    const fields = document.createElement("div");
+    fields.className = "field-container";
+
+    const labels = ["ПОЛЕ1", "ПОЛЕ2", "ПОЛЕ3", "ПОЛЕ4", "ПОЛЕ5"];
+    const correctIndex = 2;
+
+    labels.forEach((label, i) => {
+        const box = document.createElement("div");
+        box.className = "fake-field";
+
+        const l = document.createElement("div");
+        l.className = "label";
+        l.innerText = label;
+
+        const input = document.createElement("input");
+
+        input.addEventListener("keydown", e => {
+            if (e.key === "Enter") {
+                if (input.value === "MI BOOOMBOO" && i === correctIndex) {
+                    stage3();
+                } else {
+                    timeLeft -= 60;
+                    updateTimer();
+                    input.value = "";
+                }
+            }
+        });
+
+        box.appendChild(l);
+        box.appendChild(input);
+        fields.appendChild(box);
+    });
+
+    container.appendChild(fields);
+}
+
+/* ===== ЕТАП 3 (ЗАГОТОВКА) ===== */
+function stage3() {
+    document.body.innerHTML = "<h1 style='color:#00ff00;text-align:center;margin-top:40vh'>ЕТАП 3 АКТИВОВАНО</h1>";
+}
 </script>
 
 </body>
