@@ -109,7 +109,6 @@ const input = document.getElementById("input");
 const timerDisplay = document.getElementById("timer");
 const beep = document.getElementById("beep");
 
-// Функція друку тексту
 function typeText(text, cb) {
     let i = 0;
     terminal.innerHTML = "";
@@ -123,9 +122,12 @@ function typeText(text, cb) {
 }
 
 function startTimer() {
+    // Очищуємо старий таймер, щоб не було прискорення
+    if (timerInterval) clearInterval(timerInterval); 
+    
     timerInterval = setInterval(() => {
         timeLeft--;
-        if (timeLeft <= 300) document.body.classList.add("panic");
+        if (timeLeft <= 60) document.body.classList.add("panic");
         if (timeLeft <= 0) endGame();
 
         const m = String(Math.floor(timeLeft/60)).padStart(2,"0");
@@ -139,8 +141,11 @@ function screamer(audioId, imgName) {
     div.className = "screamer";
     div.innerHTML = `<img src="${imgName}.jpg">`;
     document.body.appendChild(div);
-    const audio = document.getElementById(audioId);
-    if(audio) audio.play();
+    const sound = document.getElementById(audioId);
+    if(sound) {
+        sound.currentTime = 0;
+        sound.play();
+    }
     setTimeout(()=>div.remove(), 1500);
 }
 
@@ -149,16 +154,14 @@ function endGame() {
     screamer("screamEnd", "endtimes");
 }
 
-// Головний ввід
 input.addEventListener("keydown", e => {
-    if (beep) beep.cloneNode(true).play(); // cloneNode дозволяє грати звуки часто
     if (e.key !== "Enter") return;
     const code = input.value.toUpperCase();
     input.value = "";
-
+    
+    // Глобальні коди
     if (code === "TEST") screamer("scream1", "test");
     if (code === "TIME+") timeLeft += 300;
-    if (code === "ENDGAME") timeLeft = 1;
 
     advance(code);
 });
@@ -169,71 +172,130 @@ function advance(code) {
         input.classList.add("hidden");
         stage2();
     }
-    else if (stage === 3 && code === "CODE3") {
-        stage = 4;
-        startCode4();
-    }
 }
 
 /* ===== ЕТАП 2 ===== */
 function stage2() {
-    const stage2Text = `
-Перший контакт із аномалією показав:
-стандартні методи не працюють.
-Агент, який покладається лише на руки, — приречений.
+    const stage2Text = `Молодець, ти віднайшов перший код, але поки що ми надто далеко від правди (крівди). 
 
-ВАШЕ ЗАВДАННЯ: відкрити цей конверт БЕЗ використання рук.
-Дозволено: рот, лікоть, коліно, сила тяжіння.
-Заборонено: здоровий глузд.
+Ми перехопили повідомлення, яке хтось дуже не хотів, щоб ви прочитали.
+
+Воно зашифроване примітивним, але ефективним методом.
+Його використовували ще тоді, коли Рим не підозрював,
+що колись зʼявиться Шрек.
+
+Судак-тудак.....
+Щось не так.... здається наші пр.... як.......баа..г..
+АГЕНТ! ось перех.... згадай.... 4 роки.... майже.... вище...
+
+*NJ CPPPNCPP*
+
 `;
-    typeText(stage2Text, createFields);
+    typeText(stage2Text, createFieldsStage2);
 }
 
-/* ===== ПОЛЯ ===== */
-function createFields() {
-    // Використовуємо термінал як контейнер, або створіть <div id="container"> в HTML
-    const container = document.getElementById("terminal"); 
+function createFieldsStage2() {
     const fields = document.createElement("div");
-    fields.style.marginTop = "20px";
-
+    fields.id = "stage2-container";
     const labels = ["ПОЛЕ1", "ПОЛЕ2", "ПОЛЕ3", "ПОЛЕ4", "ПОЛЕ5"];
-    const correctIndex = 2; // Тобто ПОЛЕ3
-
+    
     labels.forEach((label, i) => {
         const box = document.createElement("div");
-        box.style.marginBottom = "10px";
-
-        const l = document.createElement("span");
-        l.innerText = label + ": ";
-
-        const fieldInput = document.createElement("input");
-        fieldInput.addEventListener("keydown", e => {
+        box.innerHTML = `<span>${label}: </span>`;
+        const fInput = document.createElement("input");
+        fInput.onkeydown = e => {
             if (e.key === "Enter") {
-                if (fieldInput.value.toUpperCase() === "MI BOOOMBOO" && i === correctIndex) {
-                    stage = 3;
+                if (fInput.value.toUpperCase() === "MI BOOOMBOO" && i === 2) {
                     fields.remove();
-                    terminal.innerHTML = "ДОСТУП ДОЗВОЛЕНО. ПЕРЕХІД ДО ЕТАПУ 3...";
-                    setTimeout(stage3, 2000);
+                    stage = 3;
+                    stage3();
                 } else {
                     timeLeft -= 60;
-                    fieldInput.value = "";
-                    terminal.innerHTML += "\n<span style='color:red'>ERROR: WRONG SEQUENCE</span>";
+                    fInput.value = "";
+                    screamer("scream1", "test");
                 }
             }
-        });
-
-        box.appendChild(l);
-        box.appendChild(fieldInput);
+        };
+        box.appendChild(fInput);
         fields.appendChild(box);
     });
-
-    container.appendChild(fields);
+    terminal.appendChild(fields);
 }
 
+/* ===== ЕТАП 3 ===== */
 function stage3() {
-    terminal.innerHTML = "Етап 3 активовано. Введіть CODE3 для продовження.";
-    input.classList.remove("hidden"); // Повертаємо головне поле вводу
+    const stage3Text = `
+Йоу, бейба, відкрий пакунок під номером 2, ти це точно заслуговуєш. 
+До речі бачив мої скриті послання? Сподіваюсь ти вмієш бачити скриті речі.
+
+Час спливає, тому я думаю я дам тобі можливість поповнити його...
+Тепер в тебе буде шанс 50/50, так би мовити сімпл-дімпл або попит.
+В одне ти маєш ввести код на час, в інший код для продовження.
+
+Послухай запис, звертай увагу на дрібні деталі.
+`;
+
+    typeText(stage3Text, () => {
+        // Створюємо аудіоплеєр
+        const audioControl = document.createElement("div");
+        audioControl.innerHTML = `
+            <p style="color:yellow">ЗАПИС_03.MP3</p>
+            <button onclick="document.getElementById('scream1').play()">ВКЛЮЧИТИ ЗАПИС</button>
+            <br><br>
+        `;
+        
+        // Створюємо два поля
+        const container = document.createElement("div");
+        container.innerHTML = `
+            <div style="margin-bottom:10px">
+                <label>СІМПЛ-ДІМПЛ: </label>
+                <input id="simpleInput" placeholder="???">
+            </div>
+            <div>
+                <label>ПОПИТ: </label>
+                <input id="popitInput" placeholder="???">
+            </div>
+        `;
+
+        terminal.appendChild(audioControl);
+        terminal.appendChild(container);
+
+        const sInput = document.getElementById("simpleInput");
+        const pInput = document.getElementById("popitInput");
+
+        // Логіка для СІМПЛ-ДІМПЛ (Код на час)
+        sInput.onkeydown = e => {
+            if (e.key === "Enter") {
+                if (sInput.value.toUpperCase() === "TERRARIACOMPASS") {
+                    timeLeft += 600; // +10 хвилин
+                    sInput.disabled = true;
+                    sInput.style.color = "gray";
+                    terminal.innerHTML += "<p style='color:cyan'>ЧАС ПОПОВНЕНО!</p>";
+                } else {
+                    screamer("scream1", "test");
+                    timeLeft -= 60;
+                }
+            }
+        };
+
+        // Логіка для ПОПИТ (Код на продовження)
+        pInput.onkeydown = e => {
+            if (e.key === "Enter") {
+                if (pInput.value.toUpperCase() === "GERMANY") {
+                    stage = 4;
+                    terminal.innerHTML = "ЕТАП 3 ЗАВЕРШЕНО. ПЕРЕХІД...";
+                    setTimeout(startCode4, 2000); // Перехід до вашої вікторини
+                } else {
+                    screamer("scream1", "test");
+                    timeLeft -= 60;
+                }
+            }
+        };
+    });
 }
+
+// Початковий запуск
+typeText("АГЕНТЕ... Система чекає на КОД 1...", startTimer);
 
 // Запуск першої сцени
 typeText(`АГЕНТЕ, система дала збій... Шукайте код у Конверті №1.`, startTimer);
@@ -289,10 +351,12 @@ function startCode5(){
 }
 
 typeText(
-`АГЕНТЕ Богдан,
+`
+АГЕНТЕ [ІМʼЯ], 
+якщо ви читаєте це повідомлення — значить система дала збій. 
 
-якщо ви читаєте це повідомлення — значить система дала збій.
-Або ми. Або ви.
+Або ми. 
+Або ви.
 
 Аналітичний Відділ фіксує аномальну активність, повʼязану з кодовою назвою GREEN OGRE.
 
