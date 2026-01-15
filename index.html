@@ -125,7 +125,7 @@ function typeText(text, cb) {
 function startTimer() {
     timerInterval = setInterval(() => {
         timeLeft--;
-        if (timeLeft <= 60) document.body.classList.add("panic");
+        if (timeLeft <= 300) document.body.classList.add("panic");
         if (timeLeft <= 0) endGame();
 
         const m = String(Math.floor(timeLeft/60)).padStart(2,"0");
@@ -289,7 +289,7 @@ function startCode5(){
 }
 
 typeText(
-`АГЕНТЕ [ІМʼЯ],
+`АГЕНТЕ Богдан,
 
 якщо ви читаєте це повідомлення — значить система дала збій.
 Або ми. Або ви.
