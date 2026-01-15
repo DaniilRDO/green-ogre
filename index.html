@@ -95,7 +95,7 @@ input, button {
     <button id="changeTextBtn">Початок розслідування</button>
 </div>
 
-    // Контейнер з текстом на Скалу
+   
 <div id="stage5-container" class="hidden">
     <div id="hint-box" style="color: yellow; font-size: 1.2em; margin-bottom: 10px;"></div>
     <div id="secret-text-area" style="background: black; line-height: 1.6; cursor: default; margin-bottom: 20px;"></div>
@@ -103,7 +103,7 @@ input, button {
 </div>
 
 
-    // Контейнер для клікера
+
 <div id="stage6-container" class="hidden" style="text-align: center; padding-top: 50px;">
     <div id="click-counter" style="font-size: 72px; font-weight: bold; margin-bottom: 20px;">500</div>
     <div id="final-code-display" class="hidden" style="font-size: 80px; color: gold; text-shadow: 0 0 20px yellow; margin-bottom: 20px;">СДВГ</div>
@@ -117,7 +117,7 @@ input, button {
 
 <div id="flash-overlay" style="position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: 0;"></div>
 
-    // також
+
     
 <div id="fakeFields" class="hidden"></div>
 <div id="quiz" class="hidden"></div>
@@ -163,6 +163,7 @@ document.getElementById("changeTextBtn").onclick = () => {
 значить ви все робите правильно.`;
 
     typeText(alternativeText);
+    this.remove();
 };
 
 
@@ -298,7 +299,7 @@ function stage3() {
 Щось точно зайве. 
 Абрівіатура допоможе тобі знайти сімпл, 
 дімпл вкаже тобі шлях, тут прямим текстом. 
-Але пам'ятаєш на якій мові коди?
+Але пам'ятаєш на якій мові був попередній код?
 
 Попит найскладніше, бо тобі треба вміти рахувати, як саме? 
 усе чуте це 1 а порожнеча між ними це 2.  
