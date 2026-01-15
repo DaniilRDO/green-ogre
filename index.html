@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>SECURE TERMINAL</title>
+
+<style>
+body {
+    background: black;
+    color: #00ff66;
+    font-family: monospace;
+    padding: 20px;
+}
+
+.hidden { display: none; }
+
+#terminal {
+    white-space: pre-wrap;
+    min-height: 200px;
+}
+
+input, button {
+    background: black;
+    color: #00ff66;
+    border: 1px solid #00ff66;
+    font-family: monospace;
+    padding: 5px;
+}
+
+#timer {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.panic {
+    background: #200;
+    color: red;
+}
+
+.quiz-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.light {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #300;
+}
+.light.green { background: #00ff66; }
+.light.red { background: red; }
+
+.screamer {
+    position: fixed;
+    inset: 0;
+    background: black;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.screamer img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+</style>
+</head>
+
+<body>
+
+<div id="timer">05:00</div>
+<div id="terminal"></div>
+<input id="input" placeholder="ENTER CODE">
+
+<div id="fakeFields" class="hidden"></div>
+<div id="quiz" class="hidden"></div>
+
+<audio id="beep" src="beep.mp3"></audio>
+<audio id="scream1" src="test.mp3"></audio>
+<audio id="screamEnd" src="endtimes.mp3"></audio>
+
+<script>
+let stage = 1;
+let timeLeft = 300;
+let timerInterval;
+
+const terminal = document.getElementById("terminal");
+const input = document.getElementById("input");
+const timerDisplay = document.getElementById("timer");
+const beep = document.getElementById("beep");
+
+function typeText(text, cb) {
+    let i = 0;
+    const interval = setInterval(() => {
+        terminal.innerHTML += text[i++];
+        if (i >= text.length) {
+            clearInterval(interval);
+            if (cb) cb();
+        }
+    }, 15);
+}
+
+function startTimer() {
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 60) document.body.classList.add("panic");
+        if (timeLeft <= 0) endGame();
+
+        const m = String(Math.floor(timeLeft/60)).padStart(2,"0");
+        const s = String(timeLeft%60).padStart(2,"0");
+        timerDisplay.textContent = `${m}:${s}`;
+    }, 1000);
+}
+
+function screamer(audioId, imgName) {
+    const div = document.createElement("div");
+    div.className = "screamer";
+    div.innerHTML = `<img src="${imgName}.jpg">`;
+    document.body.appendChild(div);
+    document.getElementById(audioId).play();
+    setTimeout(()=>div.remove(),1500);
+}
+
+function endGame() {
+    clearInterval(timerInterval);
+    screamer("screamEnd", "endtimes");
+}
+
+input.addEventListener("keydown", e => {
+    beep.play();
+    if (e.key !== "Enter") return;
+    const code = input.value.toUpperCase();
+    input.value = "";
+
+    if (code === "TEST") screamer("scream1", "test");
+    if (code === "TIME+") timeLeft += 300;
+    if (code === "ENDGAME") timeLeft = 1;
+
+    advance(code);
+});
+
+function advance(code) {
+    if (stage === 1 && code === "CODE1") {
+        stage = 2;
+        typeText("\nACCESS GRANTED\nLOCATE CORRECT CHANNEL\n");
+        startFakeFields();
+    }
+    else if (stage === 3 && code === "CODE3") {
+        stage = 4;
+        startCode4();
+    }
+}
+
+function startFakeFields() {
+    const wrap = document.getElementById("fakeFields");
+    wrap.classList.remove("hidden");
+    wrap.innerHTML = "";
+
+    const correct = "X9A7Q2";
+
+    for (let i=0;i<5;i++) {
+        const id = Math.random().toString(36).substring(2,8).toUpperCase();
+        const inp = document.createElement("input");
+        inp.placeholder = id;
+        inp.addEventListener("keydown", e=>{
+            if(e.key!=="Enter")return;
+            if(id===correct && inp.value.toUpperCase()==="CODE2"){
+                wrap.classList.add("hidden");
+                stage = 3;
+                massiveText();
+            } else {
+                timeLeft -= 60;
+            }
+        });
+        wrap.appendChild(inp);
+        if(id===correct) inp.dataset.correct="1";
+    }
+}
+
+function massiveText() {
+    terminal.innerHTML="";
+    typeText(
+`AGENT REPORT:
+NO TURNING BACK.
+CLICK THE WORD TO CONTINUE.
+THE SIGNAL SAYS TAKEME NOW.
+`, ()=>{
+        terminal.innerHTML = terminal.innerHTML.replace(
+            "TAKEME",
+            `<span onclick="advance('CODE3')">TAKEME</span>`
+        );
+    });
+}
+
+function startCode4() {
+    const quiz = document.getElementById("quiz");
+    quiz.classList.remove("hidden");
+    quiz.innerHTML="";
+
+    const q = [
+        ["Повна назва ДДМА","ДОНБАСЬКА ДЕРЖАВНА МАШИНОБУДІВНА АКАДЕМІЯ"],
+        ["Те що не можна купити","СЛОН"],
+        ["Шкода гачка","150"],
+        ["Відеокарта","GTX 4060"],
+        ["Що в кармані","НІЧОГО"],
+        ["Традиційний подарунок","АНТИСТРЕС"],
+        ["Код","CODE4"]
+    ];
+
+    q.forEach(([t,a])=>{
+        const d=document.createElement("div");
+        d.className="quiz-item";
+        const i=document.createElement("input");
+        i.placeholder=t;
+        const l=document.createElement("div");
+        l.className="light";
+        i.onkeydown=e=>{
+            if(e.key!=="Enter")return;
+            if(i.value.toUpperCase()===a){
+                l.className="light green";
+                i.disabled=true;
+                checkQuiz();
+            } else l.className="light red";
+        };
+        d.append(i,l);
+        quiz.appendChild(d);
+    });
+}
+
+function checkQuiz(){
+    if([...document.querySelectorAll(".light")]
+        .every(l=>l.classList.contains("green"))){
+        startCode5();
+    }
+}
+
+function startCode5(){
+    timerDisplay.style.display="none";
+    document.body.innerHTML="<pre style='color:red'>SYSTEM FAILURE\nPRESS F</pre>";
+    document.addEventListener("keydown",e=>{
+        if(e.key.toUpperCase()==="F") location.reload();
+    });
+}
+
+typeText("SECURE CHANNEL ESTABLISHED\nENTER CODE\n", startTimer);
+</script>
+
+</body>
+</html>
