@@ -87,7 +87,7 @@ input, button {
 
 <body>
 
-<div id="timer">05:00</div>
+<div id="timer">10:00</div>
 <div id="terminal"></div>
 
 <input id="input" placeholder="ENTER CODE">
@@ -109,6 +109,7 @@ const input = document.getElementById("input");
 const timerDisplay = document.getElementById("timer");
 const beep = document.getElementById("beep");
 
+// Функція друку тексту
 function typeText(text, cb) {
     let i = 0;
     terminal.innerHTML = "";
@@ -138,8 +139,9 @@ function screamer(audioId, imgName) {
     div.className = "screamer";
     div.innerHTML = `<img src="${imgName}.jpg">`;
     document.body.appendChild(div);
-    document.getElementById(audioId).play();
-    setTimeout(()=>div.remove(),1500);
+    const audio = document.getElementById(audioId);
+    if(audio) audio.play();
+    setTimeout(()=>div.remove(), 1500);
 }
 
 function endGame() {
@@ -147,8 +149,9 @@ function endGame() {
     screamer("screamEnd", "endtimes");
 }
 
+// Головний ввід
 input.addEventListener("keydown", e => {
-    beep.play();
+    if (beep) beep.cloneNode(true).play(); // cloneNode дозволяє грати звуки часто
     if (e.key !== "Enter") return;
     const code = input.value.toUpperCase();
     input.value = "";
@@ -172,83 +175,70 @@ function advance(code) {
     }
 }
 
-    /* ===== ЕТАП 2 ===== */
+/* ===== ЕТАП 2 ===== */
 function stage2() {
-    
-    Stage = 2;
-    mainInput.classList.add("hidden");
-
     const stage2Text = `
 Перший контакт із аномалією показав:
 стандартні методи не працюють.
-
 Агент, який покладається лише на руки, — приречений.
 
-ВАШЕ ЗАВДАННЯ:
-відкрити цей конверт БЕЗ використання рук.
-
-Дозволено:
-– рот
-– лікоть
-– коліно
-– сила тяжіння
-
-Заборонено:
-– здоровий глузд
-– допомога ззовні
-
-Пам’ятайте: якщо це виглядає тупо,
-значить ви все робите правильно.
+ВАШЕ ЗАВДАННЯ: відкрити цей конверт БЕЗ використання рук.
+Дозволено: рот, лікоть, коліно, сила тяжіння.
+Заборонено: здоровий глузд.
 `;
-
     typeText(stage2Text, createFields);
 }
 
-    /* ===== ПОЛЯ ===== */
+/* ===== ПОЛЯ ===== */
 function createFields() {
-    const container = document.getElementById("container");
-
+    // Використовуємо термінал як контейнер, або створіть <div id="container"> в HTML
+    const container = document.getElementById("terminal"); 
     const fields = document.createElement("div");
-    fields.className = "field-container";
+    fields.style.marginTop = "20px";
 
     const labels = ["ПОЛЕ1", "ПОЛЕ2", "ПОЛЕ3", "ПОЛЕ4", "ПОЛЕ5"];
-    const correctIndex = 2;
+    const correctIndex = 2; // Тобто ПОЛЕ3
 
     labels.forEach((label, i) => {
         const box = document.createElement("div");
-        box.className = "fake-field";
+        box.style.marginBottom = "10px";
 
-        const l = document.createElement("div");
-        l.className = "label";
-        l.innerText = label;
+        const l = document.createElement("span");
+        l.innerText = label + ": ";
 
-        const input = document.createElement("input");
-
-        input.addEventListener("keydown", e => {
+        const fieldInput = document.createElement("input");
+        fieldInput.addEventListener("keydown", e => {
             if (e.key === "Enter") {
-                if (input.value === "MI BOOOMBOO" && i === correctIndex) {
-                    stage3();
+                if (fieldInput.value.toUpperCase() === "MI BOOOMBOO" && i === correctIndex) {
+                    stage = 3;
+                    fields.remove();
+                    terminal.innerHTML = "ДОСТУП ДОЗВОЛЕНО. ПЕРЕХІД ДО ЕТАПУ 3...";
+                    setTimeout(stage3, 2000);
                 } else {
                     timeLeft -= 60;
-                    updateTimer();
-                    input.value = "";
+                    fieldInput.value = "";
+                    terminal.innerHTML += "\n<span style='color:red'>ERROR: WRONG SEQUENCE</span>";
                 }
             }
         });
 
         box.appendChild(l);
-        box.appendChild(input);
+        box.appendChild(fieldInput);
         fields.appendChild(box);
     });
 
     container.appendChild(fields);
-}   
-
-function stage3() {
-
 }
 
-function startCode4() {
+function stage3() {
+    terminal.innerHTML = "Етап 3 активовано. Введіть CODE3 для продовження.";
+    input.classList.remove("hidden"); // Повертаємо головне поле вводу
+}
+
+// Запуск першої сцени
+typeText(`АГЕНТЕ, система дала збій... Шукайте код у Конверті №1.`, startTimer);
+
+function stage4() {
     const quiz = document.getElementById("quiz");
     quiz.classList.remove("hidden");
     quiz.innerHTML="";
