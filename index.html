@@ -118,6 +118,18 @@ input, button {
     align-items: center;
     color: #111; /* Дуже тьмяний текст */
 }
+
+    .random-shape {
+    position: fixed;
+    pointer-events: none; /* Щоб фігури не заважали клікати */
+    z-index: 90;
+    opacity: 0.8;
+}
+
+#mega-button {
+    transition: all 0.1s ease; /* Для плавного переміщення кнопки */
+    position: relative; /* Важливо для зміни координат */
+}
     
 </style>
 </head>
@@ -142,7 +154,7 @@ input, button {
 
 
 <div id="stage6-container" class="hidden" style="text-align: center; padding-top: 50px;">
-    <div id="click-counter" style="font-size: 72px; font-weight: bold; margin-bottom: 20px;">10</div>
+    <div id="click-counter" style="font-size: 72px; font-weight: bold; margin-bottom: 20px;">500</div>
     <div id="final-code-display" class="hidden" style="font-size: 80px; color: gold; text-shadow: 0 0 20px yellow; margin-bottom: 20px;">СДВГ</div>
     
     <button id="mega-button" style="width: 200px; height: 200px; border-radius: 50%; font-size: 24px; cursor: pointer; border: 5px solid white;">ТИЦЯЙ!</button>
@@ -211,6 +223,49 @@ input, button {
 </div>
 
 
+
+
+<div id="stage12-container" class="hidden" style="position: fixed; inset: 0; background: black; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10002;">
+    <div id="pig-intro" class="hidden" style="text-align: center;">
+        <img src="свиная.jpg" style="max-width: 400px; border: 5px solid white;">
+        <h1 style="color: white; margin-top: 20px;">ЗА ЩО ТИ ТАК? Я ХОЧУ ЖИТИ!</h1>
+    </div>
+
+    <div id="pig-game" class="hidden" style="width: 100%; height: 100%; position: relative;">
+        <div id="meat-target" style="position: absolute; right: 50px; top: 50%; transform: translateY(-50%); text-align: center;">
+            <img src="мясо.jpg" style="width: 200px; border: 3px solid red;">
+            <p style="color: red; font-weight: bold;">М'ЯСОКОМБІНАТ</p>
+        </div>
+        
+        <div id="pig-assembly" style="position: absolute; left: 200px; top: 200px; width: 300px; height: 300px;">
+            <div class="pig-part" data-part="body" style="width: 200px; height: 120px; background: pink; border-radius: 100px; position: absolute; top: 80px; left: 50px; z-index: 2;"></div>
+            <div class="pig-part" data-part="head" style="width: 100px; height: 100px; background: pink; border-radius: 50%; position: absolute; top: 50px; left: 20px; z-index: 3;"></div>
+            <div class="pig-part" data-part="ear1" style="width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-bottom: 30px solid pink; position: absolute; top: 30px; left: 30px; z-index: 1; transform: rotate(-20deg);"></div>
+            <div class="pig-part" data-part="ear2" style="width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-bottom: 30px solid pink; position: absolute; top: 30px; left: 80px; z-index: 1; transform: rotate(20deg);"></div>
+            <div class="pig-part" data-part="eye1" style="width: 10px; height: 10px; background: black; border-radius: 50%; position: absolute; top: 80px; left: 45px; z-index: 4;"></div>
+            <div class="pig-part" data-part="eye2" style="width: 10px; height: 10px; background: black; border-radius: 50%; position: absolute; top: 80px; left: 75px; z-index: 4;"></div>
+            <div class="pig-part" data-part="snout" style="width: 40px; height: 30px; background: #ff9999; border-radius: 20px; position: absolute; top: 100px; left: 50px; z-index: 4;"></div>
+            <div class="pig-part" data-part="leg1" style="width: 20px; height: 50px; background: pink; position: absolute; top: 180px; left: 70px; z-index: 1;"></div>
+            <div class="pig-part" data-part="leg2" style="width: 20px; height: 50px; background: pink; position: absolute; top: 180px; left: 110px; z-index: 1;"></div>
+            <div class="pig-part" data-part="leg3" style="width: 20px; height: 50px; background: pink; position: absolute; top: 180px; left: 170px; z-index: 1;"></div>
+            <div class="pig-part" data-part="leg4" style="width: 20px; height: 50px; background: pink; position: absolute; top: 180px; left: 210px; z-index: 1;"></div>
+            <div class="pig-part" data-part="tail" style="width: 30px; height: 10px; border: 3px solid pink; border-radius: 50%; border-bottom: 0; position: absolute; top: 130px; left: 240px; z-index: 1; transform: rotate(45deg);"></div>
+        </div>
+
+        <div id="final-meat-ui" class="hidden" style="position: absolute; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100;">
+            <h1 style="color: red; font-size: 100px; margin-bottom: 20px;">MEAT</h1>
+            <input id="inputStage12" placeholder="ВВЕДІТЬ КОД" style="background: black; color: red; border: 2px solid red; padding: 15px; font-size: 24px;">
+        </div>
+    </div>
+</div>
+
+<audio id="meatAudio" src="мясо.mp3"></audio>
+
+<style>
+    .pig-part { cursor: grab; }
+    .pig-part:active { cursor: grabbing; }
+</style>
+    
     
     
 <div id="fakeFields" class="hidden"></div>
@@ -655,59 +710,110 @@ GREEN OGRE точно не очікує, що ти пройдеш це завд�
     });
 }
 
+let shapesCreated = false;
+
 function initClicker() {
     const btn = document.getElementById("mega-button");
-    const counterDisplay = document.getElementById("click-counter");
-    const overlay = document.getElementById("flash-overlay");
-    const screamSound = document.getElementById("scream1"); // Використовуємо ваш тестовий звук
+    const counterDisp = document.getElementById("click-counter");
+    const flash = document.getElementById("flash-overlay");
+    const sound = document.getElementById("scream1");
 
     btn.onclick = () => {
         if (clickCount > 0) {
             clickCount--;
-            counterDisplay.textContent = clickCount;
+            counterDisp.textContent = clickCount;
 
-            // Ефект спалаху
-            overlay.style.backgroundColor = acidicColors[colorIndex];
-            overlay.style.opacity = "0.8";
-            setTimeout(() => { overlay.style.opacity = "0"; }, 50);
+            // 1. Кислотний спалах
+            flash.style.backgroundColor = acidicColors[colorIndex];
+            flash.style.opacity = "0.7";
+            setTimeout(() => { flash.style.opacity = "0"; }, 40);
 
-            // Звук
-            screamSound.currentTime = 0;
-            screamSound.play().catch(e => {});
+            // 2. Звук
+            sound.currentTime = 0;
+            sound.play().catch(() => {});
 
-            // Зміна індексу кольору
+            // 3. Робота з фігурами
+            if (!shapesCreated) {
+                createShapes();
+                shapesCreated = true;
+            }
+            moveShapes();
+
+            // 4. Логіка втікаючої кнопки (якщо < 20 кліків)
+            if (clickCount <= 20 && clickCount > 0) {
+                moveElementRandomly(btn);
+            }
+
             colorIndex = (colorIndex + 1) % acidicColors.length;
 
             if (clickCount === 0) {
                 finishClicking();
+                // Видаляємо фігури в кінці
+                document.querySelectorAll('.random-shape').forEach(s => s.remove());
             }
         }
     };
+}
+
+function createShapes() {
+    const shapes = ['circle', 'rect', 'square'];
+    shapes.forEach(type => {
+        const shape = document.createElement('div');
+        shape.className = 'random-shape';
+        shape.id = 'shape-' + type;
+        
+        // Початкові стилі
+        shape.style.width = Math.random() * 150 + 50 + 'px';
+        shape.style.height = (type === 'rect' ? Math.random() * 100 + 50 : shape.style.width);
+        if (type === 'circle') shape.style.borderRadius = '50%';
+        
+        document.body.appendChild(shape);
+    });
+}
+
+function moveShapes() {
+    const shapes = document.querySelectorAll('.random-shape');
+    shapes.forEach(shape => {
+        shape.style.backgroundColor = acidicColors[Math.floor(Math.random() * acidicColors.length)];
+        moveElementRandomly(shape);
+    });
+}
+
+function moveElementRandomly(el) {
+    // Обмежуємо зону вильоту, щоб елемент не ховався за край екрану
+    const maxX = window.innerWidth - el.offsetWidth - 50;
+    const maxY = window.innerHeight - el.offsetHeight - 50;
+    
+    const randomX = Math.max(0, Math.floor(Math.random() * maxX));
+    const randomY = Math.max(0, Math.floor(Math.random() * maxY));
+    
+    el.style.position = 'fixed';
+    el.style.left = randomX + 'px';
+    el.style.top = randomY + 'px';
 }
 
 function finishClicking() {
-    document.getElementById("click-counter").classList.add("hidden");
-    document.getElementById("mega-button").classList.add("hidden");
+    const btn = document.getElementById("mega-button");
+    btn.style.display = "none";
+    document.getElementById("click-counter").style.display = "none";
+    document.getElementById("sdvg-label").classList.remove("hidden");
+    document.getElementById("final-input-wrap").classList.remove("hidden");
     
-    document.getElementById("final-code-display").classList.remove("hidden");
-    document.getElementById("final-input-stage6").classList.remove("hidden");
+    // Скидаємо позицію labels, якщо вони змістилися
+    document.getElementById("sdvg-label").style.position = "static";
 
-    const input6 = document.getElementById("inputStage6");
-    input6.focus();
-    input6.onkeydown = e => {
-        if (e.key === "Enter") {
-            if (input6.value.toUpperCase() === "СДВГ") {
-                alert("ПРОТОКОЛ ПОРУШЕНО. ПЕРЕХІД ДО ЕТАПУ 7");
-                stage7(); // Виклик наступного етапу
-            } else {
-                timeLeft -= 100; // Жорсткий штраф
-                input6.value = "";
-                screamer("scream1", "test");
-            }
+    const inp = document.getElementById("inputStage6");
+    inp.focus();
+    inp.onkeydown = (e) => {
+        if (e.key === "Enter" && inp.value.toUpperCase() === "СДВГ") {
+            alert("ПРОТОКОЛ ПОРУШЕНО. ПЕРЕХІД ДО ЕТАПУ 7");
+            stage12();
         }
     };
 }
 
+
+    
 
 /* ===== Звук клавіш ===== */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -737,9 +843,96 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+/* ===== ЕТАП 12 ===== */
+
+
+let partsRemoved = 0;
+const totalParts = 12; // Кількість частин свині (тіло, голова, 2 вуха, 2 ока, п'ятачок, 4 лапи, хвіст)
+
+function stage12() {
+    // Ховаємо Етап 11
+    document.getElementById("stage11-container").classList.add("hidden");
+    
+    const container = document.getElementById("stage12-container");
+    const pigIntro = document.getElementById("pig-intro");
+    const pigGame = document.getElementById("pig-game");
+    
+    container.classList.remove("hidden");
+    pigIntro.classList.remove("hidden");
+
+    // Через 6 секунд переходимо до гри
+    setTimeout(() => {
+        pigIntro.classList.add("hidden");
+        pigGame.classList.remove("hidden");
+        initPigDrag();
+    }, 6000);
+}
+
+function initPigDrag() {
+    const parts = document.querySelectorAll(".pig-part");
+    const target = document.getElementById("meat-target");
+    const meatAudio = document.getElementById("meatAudio");
+
+    parts.forEach(part => {
+        let isDragging = false;
+        let offset = { x: 0, y: 0 };
+
+        part.onmousedown = (e) => {
+            isDragging = true;
+            offset.x = e.clientX - part.getBoundingClientRect().left;
+            offset.y = e.clientY - part.getBoundingClientRect().top;
+            part.style.zIndex = 1000;
+        };
+
+        document.onmousemove = (e) => {
+            if (!isDragging) return;
+            part.style.position = 'fixed';
+            part.style.left = (e.clientX - offset.x) + 'px';
+            part.style.top = (e.clientY - offset.y) + 'px';
+
+            // Перевірка зіткнення з м'ясом
+            const rect1 = part.getBoundingClientRect();
+            const rect2 = target.getBoundingClientRect();
+
+            if (!(rect1.right < rect2.left || rect1.left > rect2.right || 
+                  rect1.bottom < rect2.top || rect1.top > rect2.bottom)) {
+                
+                // Якщо торкнулися м'яса
+                isDragging = false;
+                part.remove();
+                meatAudio.currentTime = 0;
+                meatAudio.play().catch(()=>{});
+                partsRemoved++;
+
+                if (partsRemoved === totalParts) {
+                    showMeatFinal();
+                }
+            }
+        };
+
+        document.onmouseup = () => { isDragging = false; };
+    });
+}
+
+function showMeatFinal() {
+    document.getElementById("final-meat-ui").classList.remove("hidden");
+    const inp = document.getElementById("inputStage12");
+    inp.focus();
+    inp.onkeydown = (e) => {
+        if (e.key === "Enter") {
+            // Тут ви можете вказати будь-яке кодове слово для Етапу 13
+            if (inp.value.toUpperCase() === "ШАШЛИК") { 
+                alert("Етап 12 завершено!");
+                stage13(); 
+            }
+        }
+    };
+}
 
 
 
+
+    
     
 /* ===== ЕТАП 7 ===== */
 function stage7() {
