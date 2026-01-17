@@ -118,6 +118,18 @@ input, button {
     align-items: center;
     color: #111; /* Дуже тьмяний текст */
 }
+
+    .random-shape {
+    position: fixed;
+    pointer-events: none; /* Щоб фігури не заважали клікати */
+    z-index: 90;
+    opacity: 0.8;
+}
+
+#mega-button {
+    transition: all 0.1s ease; /* Для плавного переміщення кнопки */
+    position: relative; /* Важливо для зміни координат */
+}
     
 </style>
 </head>
@@ -655,58 +667,108 @@ GREEN OGRE точно не очікує, що ти пройдеш це завд�
     });
 }
 
+let shapesCreated = false;
+
 function initClicker() {
     const btn = document.getElementById("mega-button");
-    const counterDisplay = document.getElementById("click-counter");
-    const overlay = document.getElementById("flash-overlay");
-    const screamSound = document.getElementById("scream1"); // Використовуємо ваш тестовий звук
+    const counterDisp = document.getElementById("click-counter");
+    const flash = document.getElementById("flash-overlay");
+    const sound = document.getElementById("scream1");
 
     btn.onclick = () => {
         if (clickCount > 0) {
             clickCount--;
-            counterDisplay.textContent = clickCount;
+            counterDisp.textContent = clickCount;
 
-            // Ефект спалаху
-            overlay.style.backgroundColor = acidicColors[colorIndex];
-            overlay.style.opacity = "0.8";
-            setTimeout(() => { overlay.style.opacity = "0"; }, 50);
+            // 1. Кислотний спалах
+            flash.style.backgroundColor = acidicColors[colorIndex];
+            flash.style.opacity = "0.7";
+            setTimeout(() => { flash.style.opacity = "0"; }, 40);
 
-            // Звук
-            screamSound.currentTime = 0;
-            screamSound.play().catch(e => {});
+            // 2. Звук
+            sound.currentTime = 0;
+            sound.play().catch(() => {});
 
-            // Зміна індексу кольору
+            // 3. Робота з фігурами
+            if (!shapesCreated) {
+                createShapes();
+                shapesCreated = true;
+            }
+            moveShapes();
+
+            // 4. Логіка втікаючої кнопки (якщо < 20 кліків)
+            if (clickCount <= 20 && clickCount > 0) {
+                moveElementRandomly(btn);
+            }
+
             colorIndex = (colorIndex + 1) % acidicColors.length;
 
             if (clickCount === 0) {
                 finishClicking();
+                // Видаляємо фігури в кінці
+                document.querySelectorAll('.random-shape').forEach(s => s.remove());
             }
         }
     };
+}
+
+function createShapes() {
+    const shapes = ['circle', 'rect', 'square'];
+    shapes.forEach(type => {
+        const shape = document.createElement('div');
+        shape.className = 'random-shape';
+        shape.id = 'shape-' + type;
+        
+        // Початкові стилі
+        shape.style.width = Math.random() * 150 + 50 + 'px';
+        shape.style.height = (type === 'rect' ? Math.random() * 100 + 50 : shape.style.width);
+        if (type === 'circle') shape.style.borderRadius = '50%';
+        
+        document.body.appendChild(shape);
+    });
+}
+
+function moveShapes() {
+    const shapes = document.querySelectorAll('.random-shape');
+    shapes.forEach(shape => {
+        shape.style.backgroundColor = acidicColors[Math.floor(Math.random() * acidicColors.length)];
+        moveElementRandomly(shape);
+    });
+}
+
+function moveElementRandomly(el) {
+    // Обмежуємо зону вильоту, щоб елемент не ховався за край екрану
+    const maxX = window.innerWidth - el.offsetWidth - 50;
+    const maxY = window.innerHeight - el.offsetHeight - 50;
+    
+    const randomX = Math.max(0, Math.floor(Math.random() * maxX));
+    const randomY = Math.max(0, Math.floor(Math.random() * maxY));
+    
+    el.style.position = 'fixed';
+    el.style.left = randomX + 'px';
+    el.style.top = randomY + 'px';
 }
 
 function finishClicking() {
-    document.getElementById("click-counter").classList.add("hidden");
-    document.getElementById("mega-button").classList.add("hidden");
+    const btn = document.getElementById("mega-button");
+    btn.style.display = "none";
+    document.getElementById("click-counter").style.display = "none";
+    document.getElementById("sdvg-label").classList.remove("hidden");
+    document.getElementById("final-input-wrap").classList.remove("hidden");
     
-    document.getElementById("final-code-display").classList.remove("hidden");
-    document.getElementById("final-input-stage6").classList.remove("hidden");
+    // Скидаємо позицію labels, якщо вони змістилися
+    document.getElementById("sdvg-label").style.position = "static";
 
-    const input6 = document.getElementById("inputStage6");
-    input6.focus();
-    input6.onkeydown = e => {
-        if (e.key === "Enter") {
-            if (input6.value.toUpperCase() === "СДВГ") {
-                alert("ПРОТОКОЛ ПОРУШЕНО. ПЕРЕХІД ДО ЕТАПУ 7");
-                stage7(); // Виклик наступного етапу
-            } else {
-                timeLeft -= 100; // Жорсткий штраф
-                input6.value = "";
-                screamer("scream1", "test");
-            }
+    const inp = document.getElementById("inputStage6");
+    inp.focus();
+    inp.onkeydown = (e) => {
+        if (e.key === "Enter" && inp.value.toUpperCase() === "СДВГ") {
+            alert("ПРОТОКОЛ ПОРУШЕНО. ПЕРЕХІД ДО ЕТАПУ 7");
+            stage7();
         }
     };
 }
+
 
 
 /* ===== Звук клавіш ===== */
