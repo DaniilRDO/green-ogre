@@ -818,15 +818,21 @@ function finishClicking() {
 /* ===== Звук клавіш ===== */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
+let audioCtx; // Глобальна змінна
+
 function playClickSound() {
+    // Створюємо або відновлюємо контекст тільки після взаємодії
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
     const oscillator = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
 
-    oscillator.type = 'square'; // Квадратна хвиля дає більш "механічний" звук
+    oscillator.type = 'square'; 
     oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
     oscillator.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
 
-    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime); // Трохи тихіше
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
 
     oscillator.connect(gainNode);
@@ -875,42 +881,42 @@ function initPigDrag() {
 
     parts.forEach(part => {
         let isDragging = false;
-        let offset = { x: 0, y: 0 };
 
         part.onmousedown = (e) => {
             isDragging = true;
-            offset.x = e.clientX - part.getBoundingClientRect().left;
-            offset.y = e.clientY - part.getBoundingClientRect().top;
             part.style.zIndex = 1000;
+            part.style.position = 'fixed';
         };
 
-        document.onmousemove = (e) => {
+        document.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
-            part.style.position = 'fixed';
-            part.style.left = (e.clientX - offset.x) + 'px';
-            part.style.top = (e.clientY - offset.y) + 'px';
+            
+            // Центруємо частину під курсором
+            part.style.left = (e.clientX - part.offsetWidth / 2) + 'px';
+            part.style.top = (e.clientY - part.offsetHeight / 2) + 'px';
 
-            // Перевірка зіткнення з м'ясом
+            // Перевірка зіткнення
             const rect1 = part.getBoundingClientRect();
             const rect2 = target.getBoundingClientRect();
 
             if (!(rect1.right < rect2.left || rect1.left > rect2.right || 
                   rect1.bottom < rect2.top || rect1.top > rect2.bottom)) {
                 
-                // Якщо торкнулися м'яса
                 isDragging = false;
                 part.remove();
-                meatAudio.currentTime = 0;
-                meatAudio.play().catch(()=>{});
+                if(meatAudio) {
+                    meatAudio.currentTime = 0;
+                    meatAudio.play().catch(()=>{});
+                }
                 partsRemoved++;
 
                 if (partsRemoved === totalParts) {
                     showMeatFinal();
                 }
             }
-        };
+        });
 
-        document.onmouseup = () => { isDragging = false; };
+        document.addEventListener('mouseup', () => { isDragging = false; });
     });
 }
 
