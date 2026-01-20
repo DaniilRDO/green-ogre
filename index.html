@@ -130,7 +130,86 @@ input, button {
     transition: all 0.1s ease; /* Для плавного переміщення кнопки */
     position: relative; /* Важливо для зміни координат */
 }
-    
+
+    .stage12-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    min-height: 400px;
+}
+
+.right-code-container {
+    align-self: flex-end; /* Код праворуч */
+    text-align: right;
+}
+
+.bottom-code-container {
+    margin-top: auto; /* Секрет башти внизу */
+    text-align: center;
+}
+
+#yellow-msg {
+    color: yellow;
+    border-left: 3px solid yellow;
+    padding-left: 10px;
+    max-width: 300px;
+    margin-top: 20px;
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+
+
+    .stage13-container {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.morshu-video {
+    width: 80%;
+    max-width: 500px;
+    border: 2px solid red;
+}
+
+.reboot-btn {
+    padding: 15px 30px;
+    font-size: 20px;
+    cursor: pointer;
+    background: red;
+    color: white;
+    font-weight: bold;
+    border: none;
+    box-shadow: 0 0 15px red;
+}
+
+.reboot-btn:hover {
+    background: #ff4444;
+}
+
+
+.fade-in-out {
+    font-size: 32px;
+    color: lime;
+    text-align: center;
+    margin-top: 20%;
+    opacity: 0;
+    animation: fadeInOutAnim 5s ease-in-out forwards;
+}
+
+@keyframes fadeInOutAnim {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}
 </style>
 </head>
 
@@ -835,19 +914,171 @@ document.addEventListener('keydown', (e) => {
 
 
 /* ===== ЕТАП 12 ===== */
+function stage12() {
 
+     const st6 = document.getElementById("stage6-container");
+    if (st6) st6.classList.add("hidden");
+    if (document.getElementById("flash-overlay")) document.getElementById("flash-overlay").remove();
 
+    
+    terminal.innerHTML = "";
+    
+    const text12 = `
+Агенте, ТЕРМІНОВО!
+Ми змогли вивантажити бекапи об'єкту GREEN OGRE, але це щось... дивне...
+Без стопки не розібратися, тому нумо за справу. Мені здається це все не просто так, щось в цьому є.
+ВІн би ніколи не зберігав такої інформаціїї на Комбоджийських серверах...
+`;
 
+    typeText(text12, () => {
+        const container = document.createElement("div");
+        container.className = "stage12-grid";
+        container.innerHTML = `
+            <div id="file-zone">
+                <label>ВИВАНТАЖИТИ Історія.xsls:</label><br>
+                <input type="file" id="fileInput" accept=".xlsx, .xls, .xsls">
+            </div>
 
+            <div id="yellow-container"></div>
+
+            <div class="right-code-container">
+                <label>Праворуч код</label><br>
+                <input id="rightCode" placeholder="ENTER CODE">
+            </div>
+
+            <div class="bottom-code-container">
+                <label>Секрет башти</label><br>
+                <input id="towerSecret" placeholder="...">
+            </div>
+
+            <audio id="smsSound" src="смс.mp3"></audio>
+        `;
+        
+        terminal.appendChild(container);
+
+        // Стан перевірки (чи введені обидва коди правильно)
+        let rightCodeOk = false;
+        let towerSecretOk = false;
+
+        function checkProgress() {
+            if (rightCodeOk && towerSecretOk) {
+                terminal.innerHTML = "<h2 style='color:lime'>ДОСТУП ДО ЕТАПУ 13 ВІДКРИТО...</h2>";
+                setTimeout(stage13, 2000); // ВИКЛИК 13-ГО ЕТАПУ
+            }
+        }
+
+        // Таймер на 2 хвилини для жовтого повідомлення
+        setTimeout(() => {
+            const yellowContainer = document.getElementById("yellow-container");
+            if (yellowContainer) {
+                const yellowMsg = document.createElement("div");
+                yellowMsg.id = "yellow-msg";
+                yellowMsg.innerHTML = "СИСТЕМА: Виявлено залишковий слід... Перевір метадані файлу, час завантаження не збігається з реальністю.";
+                yellowContainer.appendChild(yellowMsg);
+                
+                const sms = document.getElementById("smsSound");
+                if(sms) sms.play().catch(e => console.log("Потрібна взаємодія з екраном для звуку"));
+            }
+        }, 120000); 
+
+        // Обробка поля "Праворуч код"
+        const rInput = document.getElementById("rightCode");
+        rInput.onkeydown = e => {
+            if(e.key === "Enter") {
+                if(rInput.value.toUpperCase().trim() === "GOLD") { // ЗАМІНІТЬ GOLD НА ВІРНИЙ КОД
+                    rightCodeOk = true;
+                    rInput.style.borderColor = "lime";
+                    rInput.disabled = true;
+                    checkProgress();
+                } else {
+                    screamer("scream1", "test");
+                    timeLeft -= 30;
+                }
+            }
+        };
+        
+        // Обробка поля "Секрет башти"
+        const tInput = document.getElementById("towerSecret");
+        tInput.onkeydown = e => {
+            if(e.key === "Enter") {
+                if(tInput.value.toUpperCase().trim() === "DEADDRAGON") { // ЗАМІНІТЬ SHREK НА ВІРНИЙ КОД
+                    towerSecretOk = true;
+                    tInput.style.borderColor = "lime";
+                    tInput.disabled = true;
+                    checkProgress();
+                } else {
+                    screamer("scream1", "test");
+                    timeLeft -= 30;
+                }
+            }
+        };
+    });
+}
+
+/* ===== ЕТАП 13 ===== */
+    
+function stage13() {
+    terminal.innerHTML = "";
+    
+    // Створюємо контейнер етапу
+    const container = document.createElement("div");
+    container.className = "stage13-container";
+    
+    container.innerHTML = `
+        <h2 style="color: red; text-shadow: 0 0 10px red;">
+            Моршу розчарований в тобі, він злий і зараз з'їсть всю твою оперативну пам'ять!
+        </h2>
+        
+        <video class="morshu-video" autoplay loop muted>
+            <source src="моршу.mp4" type="video/mp4">
+            Ваш браузер не підтримує відео.
+        </video>
+        
+        <button class="reboot-btn" id="rebootBtn">ПЕРЕЗАВАНТАЖЕННЯ СИСТЕМИ</button>
+        
+        <audio id="crabRave" src="крабрейв.mp3"></audio>
+    `;
+    
+    terminal.appendChild(container);
+
+    const rebootBtn = document.getElementById("rebootBtn");
+    const crabRave = document.getElementById("crabRave");
+
+    rebootBtn.onclick = () => {
+        // 1. Зникає усе
+        terminal.innerHTML = "";
+        document.body.style.background = "black";
+        
+        // 2. Включається музика
+        if(crabRave) crabRave.play();
+
+        // 3. Через 3 хвилини (180 000 мс) з'являється текст
+        setTimeout(() => {
+            const rebootText = document.createElement("div");
+            rebootText.className = "fade-in-out";
+            rebootText.innerText = "Перезавантаження завершено";
+            document.body.appendChild(rebootText);
+
+            // 4. Через 30 секунд (30 000 мс) після проявлення тексту — перехід на етап 14
+            // Оскільки анімація тексту триває 5 секунд, додамо 30 секунд зверху
+            setTimeout(() => {
+                rebootText.remove();
+                if(crabRave) crabRave.pause();
+                stage7(); 
+            }, 30000);
+
+        }, 180000); 
+    };
+}
+
+    
 
 
     
 /* ===== ЕТАП 7 ===== */
 function stage7() {
     // Ховаємо Етап 6
-    const st6 = document.getElementById("stage6-container");
-    if (st6) st6.classList.add("hidden");
-    if (document.getElementById("flash-overlay")) document.getElementById("flash-overlay").remove();
+   
 
     terminal.innerHTML = "";
 
