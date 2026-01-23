@@ -1017,7 +1017,7 @@ downloadBtn.onclick = () => {
         let towerSecretOk = false;
 
         function checkProgress() {
-            if (rightCodeOk && towerSecretOk) {
+            if (towerSecretOk) {
                 terminal.innerHTML = "<h2 style='color:lime'>ДОСТУП ДО ЕТАПУ 13 ВІДКРИТО...</h2>";
                 setTimeout(stage13, 2000);
             }
