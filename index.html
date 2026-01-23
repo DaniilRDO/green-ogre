@@ -641,9 +641,6 @@ let clickCount = 500;
 let colorIndex = 0;
 const acidicColors = ["#FF00FF", "#00FFFF", "#FFFF00", "#FF0000"]; // Маджента, Ціан, Жовтий, Червоний
 
-const clickerMusic = new Audio('клікер.mp3');
-clickerMusic.loop = true; // Щоб грало до кінця етапу
-    
 function stage6() {
     // 1. Очищення екрана
     terminal.innerHTML = "";
@@ -683,24 +680,14 @@ function initClicker() {
             clickCount--;
             counterDisp.textContent = clickCount;
 
-            // --- НОВА ЛОГІКА ДЛЯ АУДІО ---
-            if (clickCount === 300) {
-                clickerMusic.play().catch(e => console.log("Music play blocked by browser"));
-            }
-            // ----------------------------
-
             // 1. Кислотний спалах
-            if (flash) {
-                flash.style.backgroundColor = acidicColors[colorIndex];
-                flash.style.opacity = "0.7";
-                setTimeout(() => { flash.style.opacity = "0"; }, 40);
-            }
+            flash.style.backgroundColor = acidicColors[colorIndex];
+            flash.style.opacity = "0.7";
+            setTimeout(() => { flash.style.opacity = "0"; }, 40);
 
-            // 2. Звук кліку
-            if (sound) {
-                sound.currentTime = 0;
-                sound.play().catch(() => {});
-            }
+            // 2. Звук
+            sound.currentTime = 0;
+            sound.play().catch(() => {});
 
             // 3. Робота з фігурами
             if (!shapesCreated) {
@@ -709,7 +696,7 @@ function initClicker() {
             }
             moveShapes();
 
-            // 4. Логіка втікаючої кнопки
+            // 4. Логіка втікаючої кнопки (якщо < 20 кліків)
             if (clickCount <= 20 && clickCount > 0) {
                 moveElementRandomly(btn);
             }
@@ -717,8 +704,8 @@ function initClicker() {
             colorIndex = (colorIndex + 1) % acidicColors.length;
 
             if (clickCount === 0) {
-                clickerMusic.pause(); // Зупиняємо музику в кінці
                 finishClicking();
+                // Видаляємо фігури в кінці
                 document.querySelectorAll('.random-shape').forEach(s => s.remove());
             }
         }
@@ -764,43 +751,22 @@ function moveElementRandomly(el) {
 
 function finishClicking() {
     const btn = document.getElementById("mega-button");
-    const counter = document.getElementById("click-counter");
-    const sdvgLabel = document.getElementById("sdvg-label");
-    const inputWrap = document.getElementById("final-input-wrap");
+    btn.style.display = "none";
+    document.getElementById("click-counter").style.display = "none";
+    document.getElementById("sdvg-label").classList.remove("hidden");
+    document.getElementById("final-input-wrap").classList.remove("hidden");
+    
+    // Скидаємо позицію labels, якщо вони змістилися
+    document.getElementById("sdvg-label").style.position = "static";
+
     const inp = document.getElementById("inputStage6");
-
-    // Ховаємо старе
-    if (btn) btn.style.display = "none";
-    if (counter) counter.style.display = "none";
-
-    // Показуємо нове
-    if (sdvgLabel) {
-        sdvgLabel.classList.remove("hidden");
-        sdvgLabel.style.display = "block"; // Гарантуємо видимість
-        sdvgLabel.style.position = "static";
-        sdvgLabel.innerHTML = "ВИЯВЛЕНО СДВГ. ПІДТВЕРДІТЬ ДІАГНОЗ:";
-    }
-
-    if (inputWrap) {
-        inputWrap.classList.remove("hidden");
-        inputWrap.style.display = "block";
-    }
-
-    if (inp) {
-        inp.focus();
-        inp.onkeydown = (e) => {
-            if (e.key === "Enter") {
-                if (inp.value.toUpperCase().trim() === "СДВГ") {
-                    alert("ПРОТОКОЛ ПОРУШЕНО. ПЕРЕХІД ДО ЕТАПУ 7");
-                    stage7();
-                } else {
-                    // Штраф за неправильну відповідь
-                    inp.style.borderColor = "red";
-                    setTimeout(() => inp.style.borderColor = "#00ff66", 500);
-                }
-            }
-        };
-    }
+    inp.focus();
+    inp.onkeydown = (e) => {
+        if (e.key === "Enter" && inp.value.toUpperCase() === "СДВГ") {
+            alert("ПРОТОКОЛ ПОРУШЕНО. ПЕРЕХІД ДО ЕТАПУ 7");
+            stage7();
+        }
+    };
 }
 
 
