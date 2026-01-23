@@ -703,10 +703,25 @@ function initClicker() {
 
             colorIndex = (colorIndex + 1) % acidicColors.length;
 
+            // --- ОСЬ ЦЯ ЧАСТИНА ДЛЯ ПЕРЕХОДУ ---
             if (clickCount === 0) {
-                finishClicking();
-                // Видаляємо фігури в кінці
+                // Вимикаємо музику клікера, якщо вона була
+                if (typeof clickerMusic !== 'undefined') {
+                    clickerMusic.pause();
+                }
+
+                // Очищуємо екран від фігур
                 document.querySelectorAll('.random-shape').forEach(s => s.remove());
+
+                // Ховаємо контейнер 6-го етапу
+                const stage6Cont = document.getElementById("stage6-container");
+                if (stage6Cont) {
+                    stage6Cont.classList.add("hidden");
+                    stage6Cont.style.display = "none";
+                }
+
+                // Запускаємо наступний етап
+                stage7(); 
             }
         }
     };
