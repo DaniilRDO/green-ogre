@@ -751,20 +751,26 @@ GREEN OGRE точно не очікує, що ти пройдеш це завд�
 
 let shapesCreated = false;
 
+let isMusicPlaying = false; // Додаємо перевірку на початку
+
 function initClicker() {
     const btn = document.getElementById("mega-button");
     const counterDisp = document.getElementById("click-counter");
-    const flash = document.getElementById("flash-overlay");
-    const sound = document.getElementById("scream1");
+    // ... ваші інші змінні
 
     btn.onclick = () => {
         if (clickCount > 0) {
             clickCount--;
             counterDisp.textContent = clickCount;
 
-            // --- НОВА ЛОГІКА ДЛЯ АУДІО ---
-            if (clickCount === 300) {
-                clickerMusic.play().catch(e => console.log("Music play blocked by browser"));
+            // --- ВИПРАВЛЕНА ЛОГІКА ДЛЯ АУДІО ---
+            // Музика запуститься тільки якщо число 300 І вона ще не грає
+            if (clickCount === 300 && !isMusicPlaying) {
+                clickerMusic.play()
+                    .then(() => {
+                        isMusicPlaying = true; // Тепер вона грає, і більше цей блок не спрацює
+                    })
+                    .catch(e => console.log("Браузер заблокував музику"));
             }
             // ----------------------------
 
@@ -796,7 +802,8 @@ function initClicker() {
             colorIndex = (colorIndex + 1) % acidicColors.length;
 
             if (clickCount === 0) {
-                clickerMusic.pause(); // Зупиняємо музику в кінці
+                clickerMusic.pause();
+                isMusicPlaying = false; // Скидаємо стан для наступних запусків
                 finishClicking();
                 document.querySelectorAll('.random-shape').forEach(s => s.remove());
             }
