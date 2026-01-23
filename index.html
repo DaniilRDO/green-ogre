@@ -751,22 +751,55 @@ function moveElementRandomly(el) {
 
 function finishClicking() {
     const btn = document.getElementById("mega-button");
-    btn.style.display = "none";
-    document.getElementById("click-counter").style.display = "none";
-    document.getElementById("sdvg-label").classList.remove("hidden");
-    document.getElementById("final-input-wrap").classList.remove("hidden");
-    
-    // Скидаємо позицію labels, якщо вони змістилися
-    document.getElementById("sdvg-label").style.position = "static";
+    const counter = document.getElementById("click-counter");
+    const sdvgLabel = document.getElementById("sdvg-label");
+    const inputWrap = document.getElementById("final-input-wrap");
+    const container = document.getElementById("stage6-container");
+
+    // 1. Ховаємо ігрові елементи
+    if (btn) btn.style.display = "none";
+    if (counter) counter.style.display = "none";
+
+    // 2. Очищуємо контейнер від залишків рандомних позицій
+    // Це важливо, якщо кнопка "потягнула" за собою верстку
+    if (container) {
+        container.style.position = "relative";
+        container.style.left = "0";
+        container.style.top = "0";
+    }
+
+    // 3. Показуємо фінальні елементи
+    if (sdvgLabel) {
+        sdvgLabel.classList.remove("hidden");
+        sdvgLabel.style.display = "block"; // Гарантуємо відображення
+        sdvgLabel.style.position = "static"; // Скидаємо fixed/absolute
+        sdvgLabel.style.textAlign = "center";
+        sdvgLabel.style.fontSize = "30px";
+        sdvgLabel.style.color = "red";
+        sdvgLabel.innerHTML = "ВИЯВЛЕНО СДВГ. ПІДТВЕРДІТЬ ДІАГНОЗ:";
+    }
+
+    if (inputWrap) {
+        inputWrap.classList.remove("hidden");
+        inputWrap.style.display = "block";
+    }
 
     const inp = document.getElementById("inputStage6");
-    inp.focus();
-    inp.onkeydown = (e) => {
-        if (e.key === "Enter" && inp.value.toUpperCase() === "СДВГ") {
-            alert("ПРОТОКОЛ ПОРУШЕНО. ПЕРЕХІД ДО ЕТАПУ 7");
-            stage7();
-        }
-    };
+    if (inp) {
+        inp.focus();
+        inp.onkeydown = (e) => {
+            if (e.key === "Enter") {
+                if (inp.value.toUpperCase().trim() === "СДВГ") {
+                    alert("ПРОТОКОЛ ПОРУШЕНО. ПЕРЕХІД ДО ЕТАПУ 7");
+                    stage7();
+                } else {
+                    // Візуальна віддача при помилці
+                    inp.style.borderColor = "red";
+                    setTimeout(() => inp.style.borderColor = "#00ff66", 500);
+                }
+            }
+        };
+    }
 }
 
 
