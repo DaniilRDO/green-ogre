@@ -716,7 +716,7 @@ function updateQuestion() {
 
 
 /* ===== ЕТАП 6 ===== */
-let clickCount = 500;
+let clickCount = 10;
 let colorIndex = 0;
 const acidicColors = ["#FF00FF", "#00FFFF", "#FFFF00", "#FF0000"]; // Маджента, Ціан, Жовтий, Червоний
 
@@ -856,15 +856,17 @@ function finishClicking() {
     const inputWrap = document.getElementById("final-input-wrap");
     const inp = document.getElementById("inputStage6");
 
-    // Ховаємо старе
+    // 1. Примусово видаляємо всі фігури, що літають
+    document.querySelectorAll('.random-shape').forEach(s => s.remove());
+
+    // 2. Ховаємо кнопку та лічильник
     if (btn) btn.style.display = "none";
     if (counter) counter.style.display = "none";
 
-    // Показуємо нове
+    // 3. Показуємо блок з діагнозом
     if (sdvgLabel) {
         sdvgLabel.classList.remove("hidden");
-        sdvgLabel.style.display = "block"; // Гарантуємо видимість
-        sdvgLabel.style.position = "static";
+        sdvgLabel.style.display = "block"; 
         sdvgLabel.innerHTML = "ВИЯВЛЕНО СДВГ. ПІДТВЕРДІТЬ ДІАГНОЗ:";
     }
 
@@ -879,9 +881,8 @@ function finishClicking() {
             if (e.key === "Enter") {
                 if (inp.value.toUpperCase().trim() === "СДВГ") {
                     alert("ПРОТОКОЛ ПОРУШЕНО. ПЕРЕХІД ДО ЕТАПУ 7");
-                    stage7();
+                    stage7(); // Переконайтеся, що функція stage7 існує!
                 } else {
-                    // Штраф за неправильну відповідь
                     inp.style.borderColor = "red";
                     setTimeout(() => inp.style.borderColor = "#00ff66", 500);
                 }
