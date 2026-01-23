@@ -313,7 +313,7 @@ input, button {
 
 <script>
 let stage = 1;
-let timeLeft = 1800;
+let timeLeft = 3600;
 let timerInterval;
 
 const terminal = document.getElementById("terminal");
@@ -930,6 +930,9 @@ document.addEventListener('keydown', (e) => {
 /* ===== ЕТАП 12 ===== */
 function stage12() {
 
+     terminal.innerHTML = "";
+    document.getElementById("stage5-container").classList.add("hidden");
+    
      const st6 = document.getElementById("stage6-container");
     if (st6) st6.classList.add("hidden");
     if (document.getElementById("flash-overlay")) document.getElementById("flash-overlay").remove();
@@ -1031,7 +1034,7 @@ function stage12() {
         
         document.getElementById("towerSecret").onkeydown = e => {
             if(e.key === "Enter") {
-                if(e.target.value.toUpperCase().trim() === "DEADRAGON") {
+                if(e.target.value.toUpperCase().trim() === "DEADDRAGON") {
                     towerSecretOk = true;
                     e.target.style.borderColor = "lime";
                     e.target.disabled = true;
@@ -1097,7 +1100,7 @@ function stage13() {
                 stage7(); 
             }, 30000);
 
-        }, 180000); 
+        }, 100000); 
     };
 }
 
