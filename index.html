@@ -756,7 +756,8 @@ let isMusicPlaying = false; // Додаємо перевірку на почат
 function initClicker() {
     const btn = document.getElementById("mega-button");
     const counterDisp = document.getElementById("click-counter");
-    // ... ваші інші змінні
+    const flash = document.getElementById("flash-overlay");
+    const sound = document.getElementById("scream1");
 
     btn.onclick = () => {
         if (clickCount > 0) {
