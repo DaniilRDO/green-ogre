@@ -136,12 +136,12 @@ input, button {
 
 <body>
 
-<div id="timer">30:00</div>
+<div id="timer">60:00</div>
 <div id="terminal"></div>
 
 <div style="display: flex; gap: 10px;">
     <input id="input" placeholder="ENTER CODE" style="flex-grow: 1;">
-    <button id="changeTextBtn">Початок розслідування</button>
+    <button id="changeTextBtn">ПочатОк розслідування</button>
 </div>
 
    
@@ -461,7 +461,7 @@ function stage3() {
         pInput.onkeydown = e => {
             if (e.key === "Enter") {
                 if (pInput.value.toUpperCase() === "GERMANY") {
-                    stage = 4;
+                    stage = 7;
                     terminal.innerHTML = "ЕТАП 3 ЗАВЕРШЕНО. ПЕРЕХІД...";
                     setTimeout(stage4, 2000); // Перехід до вашої вікторини
                 } else {
