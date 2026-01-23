@@ -716,11 +716,11 @@ function updateQuestion() {
 
 
 /* ===== ЕТАП 6 ===== */
-let clickCount = 10;
+let clickCount = 500;
 let colorIndex = 0;
 const acidicColors = ["#FF00FF", "#00FFFF", "#FFFF00", "#FF0000"]; // Маджента, Ціан, Жовтий, Червоний
 
-const clickerMusic = new Audio('кликер.mp3');
+const clickerMusic = new Audio('клікер.mp3');
 clickerMusic.loop = true; // Щоб грало до кінця етапу
     
 function stage6() {
@@ -751,8 +751,6 @@ GREEN OGRE точно не очікує, що ти пройдеш це завд�
 
 let shapesCreated = false;
 
-let isMusicPlaying = false; // Додаємо перевірку на початку
-
 function initClicker() {
     const btn = document.getElementById("mega-button");
     const counterDisp = document.getElementById("click-counter");
@@ -764,14 +762,9 @@ function initClicker() {
             clickCount--;
             counterDisp.textContent = clickCount;
 
-            // --- ВИПРАВЛЕНА ЛОГІКА ДЛЯ АУДІО ---
-            // Музика запуститься тільки якщо число 300 І вона ще не грає
-            if (clickCount === 300 && !isMusicPlaying) {
-                clickerMusic.play()
-                    .then(() => {
-                        isMusicPlaying = true; // Тепер вона грає, і більше цей блок не спрацює
-                    })
-                    .catch(e => console.log("Браузер заблокував музику"));
+            // --- НОВА ЛОГІКА ДЛЯ АУДІО ---
+            if (clickCount === 300) {
+                clickerMusic.play().catch(e => console.log("Music play blocked by browser"));
             }
             // ----------------------------
 
@@ -803,8 +796,7 @@ function initClicker() {
             colorIndex = (colorIndex + 1) % acidicColors.length;
 
             if (clickCount === 0) {
-                clickerMusic.pause();
-                isMusicPlaying = false; // Скидаємо стан для наступних запусків
+                clickerMusic.pause(); // Зупиняємо музику в кінці
                 finishClicking();
                 document.querySelectorAll('.random-shape').forEach(s => s.remove());
             }
@@ -856,17 +848,15 @@ function finishClicking() {
     const inputWrap = document.getElementById("final-input-wrap");
     const inp = document.getElementById("inputStage6");
 
-    // 1. Примусово видаляємо всі фігури, що літають
-    document.querySelectorAll('.random-shape').forEach(s => s.remove());
-
-    // 2. Ховаємо кнопку та лічильник
+    // Ховаємо старе
     if (btn) btn.style.display = "none";
     if (counter) counter.style.display = "none";
 
-    // 3. Показуємо блок з діагнозом
+    // Показуємо нове
     if (sdvgLabel) {
         sdvgLabel.classList.remove("hidden");
-        sdvgLabel.style.display = "block"; 
+        sdvgLabel.style.display = "block"; // Гарантуємо видимість
+        sdvgLabel.style.position = "static";
         sdvgLabel.innerHTML = "ВИЯВЛЕНО СДВГ. ПІДТВЕРДІТЬ ДІАГНОЗ:";
     }
 
@@ -881,8 +871,9 @@ function finishClicking() {
             if (e.key === "Enter") {
                 if (inp.value.toUpperCase().trim() === "СДВГ") {
                     alert("ПРОТОКОЛ ПОРУШЕНО. ПЕРЕХІД ДО ЕТАПУ 7");
-                    stage7(); // Переконайтеся, що функція stage7 існує!
+                    stage7();
                 } else {
+                    // Штраф за неправильну відповідь
                     inp.style.borderColor = "red";
                     setTimeout(() => inp.style.borderColor = "#00ff66", 500);
                 }
