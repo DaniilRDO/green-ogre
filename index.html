@@ -328,7 +328,7 @@ document.getElementById("changeTextBtn").onclick = function() {
     const alternativeText = `Перший контакт із аномалією показав:
 стандартні методи не працюють.
 
-Агент, який покладається лише на руки,
+Агент, ВЕРСіЯ З КРАСАВА який покладається лише на руки,
 — приречений.
 
 ВАШЕ ЗАВДАННЯ:
@@ -1002,7 +1002,6 @@ downloadBtn.onclick = () => {
     downloadBtn.innerText = "✅ ФАЙЛ ОТРИМАНО";
     
     // Перевіряємо, чи можна завершити етап
-    checkProgress();
 };
 
 
@@ -1082,7 +1081,7 @@ downloadBtn.onclick = () => {
                     terminal.innerHTML = "<h2 style='color:lime; text-align:center; margin-top:50px;'>ДОСТУП ДО ЕТАПУ 13 ВІДКРИТО...</h2>";
                     
                     // ПРЯМИЙ ПЕРЕХІД
-                    setTimeout(stage13, 2000);
+                    stage13();
                     
                 } else {
                     screamer("scream1", "test");
