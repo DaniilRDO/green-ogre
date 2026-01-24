@@ -1037,57 +1037,38 @@ downloadBtn.onclick = () => {
             }
         }, 120000); 
 
-       // --- ОБРОБКА ПОЛІВ (ЗАМІНІТЬ ЦЕЙ БЛОК) ---
-        // Поле "Праворуч код"
-        const rInput = document.getElementById("rightCode");
-        rInput.onkeydown = e => {
+        // Обробка файлу
+        document.getElementById("fileInput").onchange = (e) => {
+            if (e.target.files[0].name.includes("Історія")) {
+                terminal.innerHTML += `<p style="color:cyan">Файл прийнято.</p>`;
+            }
+        };
+
+        // Обробка полів
+        document.getElementById("rightCode").onkeydown = e => {
             if(e.key === "Enter") {
-                if(e.target.value.trim() === "5551") {
-                    // 1. Блокуємо поле та підсвічуємо
+                if(e.target.value.toUpperCase().trim() === "5551") { // Змініть на свій код
+                    rightCodeOk = true;
                     e.target.style.borderColor = "lime";
                     e.target.disabled = true;
-
-                    // 2. Створюємо напис "КРАСАВА"
-                    const successMsg = document.createElement("div");
-                    successMsg.innerHTML = "КРАСАВА ЦЕЙ КОД НІЧОГО НЕ РОБИТЬ, БО Я ЗАПЛУТАВСЯ В ЛОГІЦІ";
-                    successMsg.style.color = "lime";
-                    successMsg.style.fontSize = "14px";
-                    successMsg.style.marginTop = "5px";
-                    successMsg.style.fontWeight = "bold";
-                    
-                    // Додаємо його в контейнер після поля вводу
-                    e.target.parentNode.appendChild(successMsg);
+                    checkProgress();
                 } else {
                     screamer("scream1", "test");
-                    e.target.value = ""; 
+                    timeLeft -= 30;
                 }
             }
         };
         
-        // ГОЛОВНЕ ПОЛЕ: Секрет башти (ПЕРЕХІД ТУТ)
         document.getElementById("towerSecret").onkeydown = e => {
             if(e.key === "Enter") {
-                const inputVal = e.target.value.trim(); 
-
-                if (inputVal === "deaddragon") { 
-                    // Візуальний ефект успіху
+                if(e.target.value.toUpperCase().trim() === "DEADDRAGON") {
+                    towerSecretOk = true;
                     e.target.style.borderColor = "lime";
                     e.target.disabled = true;
-                    
-                    // Зупиняємо старий запис, щоб не заважав наступній сцені
-                    const audio = document.getElementById("oldRecord");
-                    if(audio) audio.pause();
-
-                    // Очищаємо термінал і пишемо фінальний текст перед 13 етапом
-                    terminal.innerHTML = "<h2 style='color:lime; text-align:center; margin-top:50px;'>ДОСТУП ДО ЕТАПУ 13 ВІДКРИТО...</h2>";
-                    
-                    // ПРЯМИЙ ПЕРЕХІД
-                    setTimeout(stage13, 2000);
-                    
+                    checkProgress();
                 } else {
                     screamer("scream1", "test");
                     timeLeft -= 30;
-                    e.target.value = ""; 
                 }
             }
         };
@@ -1115,35 +1096,35 @@ function stage13() {
         
         <button class="reboot-btn" id="rebootBtn">ПЕРЕЗАВАНТАЖЕННЯ СИСТЕМИ</button>
         
-        
+        <audio id="crabRave" src="крабрейв.mp3"></audio>
     `;
     
     terminal.appendChild(container);
 
-    <audio id="crabRave" src="крабрейв.mp3"></audio>
     const rebootBtn = document.getElementById("rebootBtn");
+    const crabRave = document.getElementById("crabRave");
 
     rebootBtn.onclick = () => {
-        // 1. Включається музика (тепер вона не зникне)
-        crabRave.play().catch(e => console.log("Потрібна взаємодія: ", e));
-
-        // 2. Зникає усе
+        // 1. Зникає усе
         terminal.innerHTML = "";
         document.body.style.background = "black";
+        
+        // 2. Включається музика
+        if(crabRave) crabRave.play();
 
-        // 3. Через 100 секунд з'являється текст
+        // 3. Через 3 хвилини (180 000 мс) з'являється текст
         setTimeout(() => {
             const rebootText = document.createElement("div");
             rebootText.className = "fade-in-out";
             rebootText.innerText = "Перезавантаження завершено";
-            // Додаємо текст в body, щоб він був видимим на чорному фоні
             document.body.appendChild(rebootText);
 
-            // 4. Через 25 секунд перехід
+            // 4. Через 30 секунд (30 000 мс) після проявлення тексту — перехід на етап 14
+            // Оскільки анімація тексту триває 5 секунд, додамо 30 секунд зверху
             setTimeout(() => {
                 rebootText.remove();
-                crabRave.pause();
-                stage14(); // Змінив на stage14, бо вище був stage7, перевірте назву наступного етапу
+                if(crabRave) crabRave.pause();
+                stage7(); 
             }, 25000);
 
         }, 100000); 
