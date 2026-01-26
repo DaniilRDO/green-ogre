@@ -1124,8 +1124,8 @@ function stage13() {
             // Повертаємо фон терміналу перед переходом
             document.body.style.background = ""; 
             
-            if (typeof stage7 === "function") {
-                stage7();
+            if (typeof stage14 === "function") {
+                stage14();
             } else {
                 console.error("Функція stage7 не знайдена!");
             }
@@ -1139,13 +1139,23 @@ function stage13() {
 function stage14() {
     terminal.innerHTML = "";
     
-    const container = document.createElement("div");
-    container.className = "stage14-container";
-    container.style.padding = "20px";
-    container.style.color = "#00ff66";
+    // 1. Повні тексти описів
+    const stories = [
+        "Поліцейський під прикриттям проникає у світ нічних вуличних перегонів Лос-Анджелеса. Він зближується з харизматичним лідером гонщиків і поступово починає сумніватися, на чиєму він боці. Пограбування вантажівок і перша поява теми «сім’ї». Фінал — вибір між законом і дружбою.",
+        "Головний герой уже не коп, а втікач. Його змушують співпрацювати з поліцією, щоб викрити наркобарона в Маямі. Поруч — старий друг дитинства, нові тачки і ще більше стилю. Домініка тут немає, але швидкості — з надлишком.",
+        "Новий герой потрапляє до Токіо і відкриває для себе світ дрифту. Він втягується в конфлікт з якудзою та їхнім «королем доріг». Тут гинуть важливі персонажі, але це стане зрозуміло лише пізніше. Атмосфера максимально відрізняється від інших частин.",
+        "Стара команда знову збирається разом через особисту трагедію. Герої працюють по різні боки закону, але проти спільного ворога. Погоні повертаються до коріння — швидкі, жорсткі та приземлені. Саме тут починається нова ера франшизи.",
+        "Дія переноситься до Ріо-де-Жанейро. Команда планує велике пограбування, щоб отримати свободу раз і назавжди. До них приєднується агент, який згодом стане союзником. Фінал з сейфом на ланцюгах став культовим.",
+        "Команді пропонують амністію в обмін на місію проти міжнародної банди. З’являється ворог, пов’язаний з минулим одного з героїв. Гонки тепер відбуваються вже не тільки на вулицях, а й на злітних смугах. Родина знову стає повною… майже.",
+        "Новий антагоніст мститься за свого брата. Ставки стають особистими, а небезпека — смертельною. Тут є стрибки між хмарочосами та спецоперації по всьому світу. Фінал — емоційне прощання, яке стало легендарним.",
+        "Один із головних героїв раптово зраджує команду. Причини цього розкриваються поступово й дуже болісно. З’являється новий глобальний ворог — холодний і розумний. Команда змушена працювати з колишніми противниками.",
+        "Минуле знову наздоганяє головного героя — цього разу у вигляді рідного брата. Розкриваються дитячі травми та старі конфлікти. Фізика остаточно відпочиває: машини літають, магніти роблять дивні речі. Але тема сім’ї залишається центром історії.",
+        "Команда стикається з найнебезпечнішим ворогом за всю історію. Він діє не силою, а продуманою помстою, руйнуючи життя крок за кроком. Події розгортаються по всьому світу і закінчуються на жорсткому кліфгенгері. Це лише перша частина фіналу.",
+        "Історія ще не завершена. Герої розкидані, багато хто під загрозою, а світ — на межі катастрофи. Це має бути кульмінація всієї саги, де зійдуться старі вороги й союзники. Остаточна відповідь на питання: що означає бути сім’єю."
+    ];
 
-    // Масив з правильними відповідями в потрібному порядку
-    const correctAnswers = [
+    // 2. Назви фільмів для вибору
+    const filmTitles = [
         "The Fast and the Furious (2001) — Форсаж",
         "2 Fast 2 Furious (2003) — Подвійний форсаж",
         "The Fast and the Furious: Tokyo Drift (2006) — Токійський дрифт",
@@ -1159,84 +1169,87 @@ function stage14() {
         "Fast X: Part 2 / Fast 11 — Форсаж 11"
     ];
 
-    // Створюємо HTML для 11 блоків
-    let gridHtml = '<div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center;">';
-    
-    for (let i = 1; i <= 11; i++) {
-        gridHtml += `
-            <div class="test-block" style="border: 1px solid #333; padding: 10px; background: #050505;">
-                <label style="display: block; margin-bottom: 5px;">ТЕСТ${i}</label>
-                <select class="fast-select" data-index="${i-1}" style="width: 100%; background: #000; color: #00ff66; border: 1px solid #00ff66; padding: 5px; cursor: pointer;">
-                    <option value="" disabled selected>Оберіть фільм...</option>
-                    ${correctAnswers.map(film => `<option value="${film}">${film}</option>`).join('')}
-                </select>
-            </div>
-            <div class="status-light" id="light-${i-1}" style="width: 20px; height: 20px; border-radius: 50%; background: #333; border: 1px solid #111;"></div>
-        `;
-    }
-    gridHtml += '</div>';
+    // 3. Створення рандомного порядку
+    let indices = Array.from({length: 11}, (v, k) => k);
+    indices.sort(() => Math.random() - 0.5);
 
-    container.innerHTML = `
-        <h1 style="text-align: center; color: #ff00ff; text-shadow: 0 0 10px;">ВСТАНОВІТЬ ХРОНОЛОГІЮ СІМ'Ї</h1>
-        ${gridHtml}
+    const container = document.createElement("div");
+    container.style.padding = "20px";
+    
+    let gridHtml = `
+        <h2 style="color: #00ff66; text-align: center; margin-bottom: 20px;">ВСТАНОВІТЬ ХРОНОЛОГІЮ СІМ'Ї</h2>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+    `;
+
+    indices.forEach(i => {
+        gridHtml += `
+            <div style="border: 1px solid #00ff66; padding: 15px; background: rgba(0,20,0,0.9); display: flex; justify-content: space-between; align-items: center;">
+                <div style="width: 85%;">
+                    <p style="font-size: 0.95em; color: #ccc; margin-bottom: 10px; line-height: 1.4;">${stories[i]}</p>
+                    <select class="fast-select" data-index="${i}" style="width: 100%; background: #000; color: #00ff66; border: 1px solid #00ff66; padding: 8px;">
+                        <option value="" disabled selected>Оберіть фільм з переліку...</option>
+                        ${filmTitles.map(t => `<option value="${t}">${t}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="status-light" id="light-${i}" style="width: 25px; height: 25px; border-radius: 50%; background: #222; border: 2px solid #000; margin-left: 15px;"></div>
+            </div>
+        `;
+    });
+
+    gridHtml += `
+        </div>
         <div style="text-align: center; margin-top: 30px;">
-            <button id="freakBtn" style="padding: 15px 30px; font-size: 20px; background: #ff0000; color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 5px;">ПЕРЕВІРКА НА ФРІКА</button>
+            <button id="freakBtn" style="padding: 20px 40px; font-size: 22px; background: #ff0000; color: white; border: none; cursor: pointer; font-weight: bold; text-transform: uppercase;">Перевірка на фріка</button>
         </div>
         <audio id="familyAudio" src="семья.mp3"></audio>
         <audio id="freakAudio" src="фрик.mp3"></audio>
     `;
 
+    container.innerHTML = gridHtml;
     terminal.appendChild(container);
 
+    // 4. Логіка звуків та перевірки
     const familyAudio = document.getElementById("familyAudio");
     const freakAudio = document.getElementById("freakAudio");
     const selects = document.querySelectorAll(".fast-select");
 
-    // Запуск аудіо при будь-якому виборі
-    selects.forEach(select => {
-        select.onchange = () => {
-            if (familyAudio) {
-                familyAudio.currentTime = 0;
-                familyAudio.play().catch(() => {});
-            }
+    selects.forEach(s => {
+        s.onchange = () => {
+            if(familyAudio) { familyAudio.currentTime = 0; familyAudio.play().catch(()=>{}); }
         };
     });
 
-    // Логіка перевірки
     document.getElementById("freakBtn").onclick = () => {
-        if (freakAudio) {
-            freakAudio.currentTime = 0;
-            freakAudio.play().catch(() => {});
-        }
-
-        let allCorrect = true;
-
-        selects.forEach((select, index) => {
-            const light = document.getElementById(`light-${index}`);
-            if (select.value === correctAnswers[index]) {
+        if(freakAudio) { freakAudio.currentTime = 0; freakAudio.play().catch(()=>{}); }
+        
+        let win = true;
+        selects.forEach(s => {
+            const idx = parseInt(s.getAttribute("data-index"));
+            const light = document.getElementById(`light-${idx}`);
+            if (s.value === filmTitles[idx]) {
                 light.style.background = "#00ff00";
-                light.style.boxShadow = "0 0 10px #00ff00";
+                light.style.boxShadow = "0 0 15px #00ff00";
             } else {
                 light.style.background = "#ff0000";
-                light.style.boxShadow = "0 0 10px #ff0000";
-                allCorrect = false;
+                light.style.boxShadow = "0 0 15px #ff0000";
+                win = false;
             }
         });
 
-        if (allCorrect) {
+        if (win) {
             setTimeout(() => {
                 terminal.innerHTML = "";
                 document.body.style.background = "black";
-                const finalMsg = document.createElement("h1");
-                finalMsg.style.cssText = "color: white; font-size: 80px; text-align: center; margin-top: 20%; text-shadow: 0 0 20px red;";
-                finalMsg.innerText = "У ВАС СІНДРОМ ТУРЕТА";
-                document.body.appendChild(finalMsg);
-
+                const h1 = document.createElement("h1");
+                h1.innerHTML = "У ВАС СІНДРОМ ТУРЕТА";
+                h1.style.cssText = "color: white; font-size: 80px; text-align: center; margin-top: 20vh; text-shadow: 0 0 20px red;";
+                document.body.appendChild(h1);
+                
                 setTimeout(() => {
-                    finalMsg.remove();
-                    if (typeof stage15 === "function") stage15();
-                }, 4000);
-            }, 1000);
+                    h1.remove();
+                    if(typeof stage7 === "function") stage7();
+                }, 5000);
+            }, 1500);
         }
     };
 }
