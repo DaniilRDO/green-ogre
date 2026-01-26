@@ -568,8 +568,8 @@ function stage4() {
 
 Перед усім, можеш відкрити пакунок 3, в ньому буде пояснення що робити з цим текстом далі:
 
-<i style="opacity: 0.8">"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."</i>
-<i style="opacity: 0.8">"Нет никого, кто любил бы боль саму по себе, кто искал бы её и кто хотел бы иметь её просто потому, что это боль.."</i>
+"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
+"Нет никого, кто любил бы боль саму по себе, кто искал бы её и кто хотел бы иметь её просто потому, что это боль.."
 
 Проснувшись однажды утром после беспокойного сна, Грегор Замза обнаружил, что он у себя в постели превратился в страшное насекомое. 
 Лежа на панцирнотвердой спине, он видел, стоило ему приподнять голову, свой коричневый, выпуклый, разделенный дугообразными чешуйками живот, на верхушке которого еле держалось готовое вот-вот окончательно сползти одеяло. 
@@ -962,7 +962,7 @@ function stage12() {
             <div id="yellow-container"></div>
 
             <div class="right-code-container">
-                <label>Праворуч код</label><br>
+                <label>Мій номер телефону</label><br>
                 <input id="rightCode" placeholder="ENTER CODE">
             </div>
 
@@ -1094,21 +1094,24 @@ function stage13() {
     const rebootBtn = document.getElementById("rebootBtn");
 
     rebootBtn.onclick = () => {
-        // 1. Очищуємо термінал і готуємо екран
+        // 1. Очищуємо термінал
         terminal.innerHTML = "";
         document.body.style.background = "black";
         
-        // 2. Створюємо та додаємо відео моршу2.mp4 (зі звуком та автоповтором)
+        // 2. Створюємо та додаємо відео моршу2.mp4
         const finalVideo = document.createElement("video");
         finalVideo.src = "моршу2.mp4";
         finalVideo.autoplay = true;
         finalVideo.loop = true;
-        finalVideo.controls = false; // Ховаємо кнопки керування
+        
+        // Стилі для центрування та розміру
         finalVideo.style.position = "fixed";
-        finalVideo.style.inset = "0";
-        finalVideo.style.width = "100vw";
-        finalVideo.style.height = "100vh";
-        finalVideo.style.objectFit = "cover";
+        finalVideo.style.top = "50%";
+        finalVideo.style.left = "50%";
+        finalVideo.style.transform = "translate(-50%, -50%)"; // Ідеальне центрування
+        finalVideo.style.maxWidth = "80vw";  // 80% ширини екрану
+        finalVideo.style.maxHeight = "80vh"; // 80% висоти екрану
+        finalVideo.style.boxShadow = "0 0 50px rgba(255, 0, 0, 0.5)"; // Ефект світіння навколо
         finalVideo.style.zIndex = "9999";
         
         document.body.appendChild(finalVideo);
