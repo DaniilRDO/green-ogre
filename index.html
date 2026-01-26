@@ -299,7 +299,7 @@ input, button {
     </div>
 </div>
 
-<audio id="finalScreamerAudio" src="фінальнийскример.mp3"></audio>
+<audio id="finalScreamerAudio" src="finalA.mp3"></audio>
 
 
 <div id="stage11-container" class="hidden" style="position: fixed; inset: 0; background: black; overflow: hidden; z-index: 10001;">
@@ -1375,10 +1375,10 @@ function stage10() {
     document.getElementById("stage10-container").classList.remove("hidden");
 
     const initialOgreText = `ХАХАХАХАХА а ось і я, GREEN OGRE
-Не очікував що ти з'явишся так швидко.... 
-Ой, а що це за кнопочка тут біля мене? 
-
-Хай там як, ти не наважишся зробити цей вибір.`;
+    Не очікував що ти з'явишся так швидко.... 
+    Ой, а що це за кнопочка тут біля мене? 
+    
+    Хай там як, ти не наважишся зробити цей вибір.`;
     
     document.getElementById("ogre-dialogue").innerHTML = initialOgreText;
 
@@ -1387,17 +1387,34 @@ function stage10() {
 
     restartButton.onclick = () => {
         // Запускаємо фінальний скример
-        screamer("finalScreamerAudio", "фінальнийскример");
+        screamer("finalScreamerAudio", "finalA");
+
+// 2. Створюємо елемент картинки скримера
+    const screamerImg = document.createElement("img");
+    screamerImg.src = "finalO.jfif"; // ЗАМІНИ НА СВОЮ НАЗВУ ФАЙЛУ (напр. screamer.jpg)
+    
+    // Стилі, щоб картинка була на весь екран поверх усього
+    screamerImg.style.position = "fixed";
+    screamerImg.style.top = "0";
+    screamerImg.style.left = "0";
+    screamerImg.style.width = "100vw";
+    screamerImg.style.height = "100vh";
+    screamerImg.style.objectFit = "cover"; // Щоб картинка не розтягувалася некрасиво
+    screamerImg.style.zIndex = "100000";   // Максимальний пріоритет
+    
+    // Додаємо картинку в body
+    document.body.appendChild(screamerImg);
         
         // Змінюємо текст після скримера
         setTimeout(() => {
+            screamerImg.remove();
             const afterScreamerText = `Ти реально думав що мені нічого робити, як тільки-но зациклити мій кашерно-неймовірний квест? 
 Якір-мені в сраку, так ти сміливий.
 
 Отже, це останній вибір, тепер все в твоїх брудних лапах і ти отримаєш той дурний код.`;
             document.getElementById("ogre-dialogue").innerHTML = afterScreamerText;
             restartButton.remove(); // Прибираємо кнопку рестарту
-        }, 1500); // Час скримера
+        }, 100000); // Час скримера
     };
 
     // Логіка для вибору та переходу на Етап 11
