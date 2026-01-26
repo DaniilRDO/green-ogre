@@ -1075,53 +1075,60 @@ function stage13() {
     container.className = "stage13-container";
     
     container.innerHTML = `
-        <h2 style="color: red; text-shadow: 0 0 10px red;">
+        <h2 style="color: red; text-shadow: 0 0 10px red; text-align: center;">
             Моршу розчарований в тобі, він злий і зараз з'їсть всю твою оперативну пам'ять!
         </h2>
         
-        <video class="morshu-video" autoplay loop muted>
+        <video class="morshu-video" autoplay loop muted style="display: block; margin: 20px auto; max-width: 80%;">
             <source src="моршу.mp4" type="video/mp4">
             Ваш браузер не підтримує відео.
         </video>
         
-        <button class="reboot-btn" id="rebootBtn">ПЕРЕЗАВАНТАЖЕННЯ СИСТЕМИ</button>
-        
-        <audio id="crabRave" src="крабрейв.mp3"></audio>
+        <div style="text-align: center;">
+            <button class="reboot-btn" id="rebootBtn">ПЕРЕЗАВАНТАЖЕННЯ СИСТЕМИ</button>
+        </div>
     `;
     
     terminal.appendChild(container);
 
     const rebootBtn = document.getElementById("rebootBtn");
-    const crabRave = document.getElementById("crabRave");
 
     rebootBtn.onclick = () => {
-        // 1. Зникає усе
+        // 1. Очищуємо термінал і готуємо екран
         terminal.innerHTML = "";
         document.body.style.background = "black";
         
-        // 2. Включається музика
-        if(crabRave) crabRave.play();
+        // 2. Створюємо та додаємо відео моршу2.mp4 (зі звуком та автоповтором)
+        const finalVideo = document.createElement("video");
+        finalVideo.src = "моршу2.mp4";
+        finalVideo.autoplay = true;
+        finalVideo.loop = true;
+        finalVideo.controls = false; // Ховаємо кнопки керування
+        finalVideo.style.position = "fixed";
+        finalVideo.style.inset = "0";
+        finalVideo.style.width = "100vw";
+        finalVideo.style.height = "100vh";
+        finalVideo.style.objectFit = "cover";
+        finalVideo.style.zIndex = "9999";
+        
+        document.body.appendChild(finalVideo);
 
-        // 3. Через 3 хвилини (180 000 мс) з'являється текст
+        // 3. Через 50000 мс (50 секунд) прибираємо відео і йдемо на етап 7
         setTimeout(() => {
-            const rebootText = document.createElement("div");
-            rebootText.className = "fade-in-out";
-            rebootText.innerText = "Перезавантаження завершено";
-            document.body.appendChild(rebootText);
-
-            // 4. Через 30 секунд (30 000 мс) після проявлення тексту — перехід на етап 14
-            // Оскільки анімація тексту триває 5 секунд, додамо 30 секунд зверху
-            setTimeout(() => {
-                rebootText.remove();
-                if(crabRave) crabRave.pause();
-                stage7(); 
-            }, 30000);
-
+            finalVideo.pause();
+            finalVideo.remove();
+            
+            // Повертаємо фон терміналу перед переходом
+            document.body.style.background = ""; 
+            
+            if (typeof stage7 === "function") {
+                stage7();
+            } else {
+                console.error("Функція stage7 не знайдена!");
+            }
         }, 50000); 
     };
 }
-
-
 
 
 
