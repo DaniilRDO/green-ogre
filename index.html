@@ -315,6 +315,7 @@ input, button {
 
 <audio id="beep" src="beep.mp3"></audio>
 <audio id="scream1" src="test.mp3"></audio>
+<audio id="hacker" src="hacker.ogg"></audio>   
 <audio id="screamEnd" src="endtimes.mp3"></audio>
 
 <script>
@@ -503,8 +504,8 @@ function stage3() {
         // Створюємо аудіоплеєр
         const audioControl = document.createElement("div");
         audioControl.innerHTML = `
-            <p style="color:yellow">ЗАПИС_03.MP3</p>
-            <button onclick="document.getElementById('scream1').play()">ВКЛЮЧИТИ ЗАПИС</button>
+            <p style="color:yellow">hacker.ogg</p>
+            <button onclick="document.getElementById('hacker').play()">ВКЛЮЧИТИ ЗАПИС</button>
             <br><br>
         `;
         
