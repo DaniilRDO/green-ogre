@@ -735,7 +735,7 @@ GREEN OGRE точно не очікує, що ти пройдеш це завд�
 
 Але чесно, агенте, мене тебе шкода, ти справжній герой своєї країни, ми будемо пам'ятати тебе!
 
-<i style="display:block; margin-top:15px; color: #ff6666;">P.S. вагітним хворим на голову, людям з епілепсією, дотерам, сдвг-шникам, клоунам та карликам в шоколадних бікіні краще відійти від екрану</i>`;
+P.S. вагітним хворим на голову, людям з епілепсією, дотерам, сдвг-шникам, клоунам та карликам в шоколадних бікіні краще відійти від екрану...........................................................................................................................................................................`;
 
     typeText(stage6Text, () => {
         setTimeout(() => {
@@ -958,16 +958,6 @@ function stage12() {
                 <audio id="oldRecord" src="старий.mp3"></audio>
             </div>
 
-            <div id="file-zone">
-    <label>СКАЧАТИ Історія.xlsx:</label><br>
-    <a href="Історія.xlsx" download="Історія.xlsx" id="downloadBtn" style="
-        display: inline-block;
-        color: #00ff66;
-        text-decoration: underline;
-        cursor: pointer;
-        margin-top: 5px;
-    ">Історія.xlsx (натисніть, щоб отримати файл)</a>
-</div>
 
             <div id="yellow-container"></div>
 
@@ -1016,25 +1006,48 @@ function stage12() {
             }
         }, 120000); 
 
-        // Обробка файлу
-        document.getElementById("downloadBtn").onclick = () => {
-        terminal.innerHTML += `<p style="color:cyan">Файл вивантажено з сервера.</p>`;
-        };
 
-        // Обробка полів
-        document.getElementById("rightCode").onkeydown = e => {
+              // --- ОБРОБКА ПОЛІВ (ЗАМІНІТЬ ЦЕЙ БЛОК) ---
+        // Поле "Праворуч код"
+        const rInput = document.getElementById("rightCode");
+        rInput.onkeydown = e => {
             if(e.key === "Enter") {
-                if(e.target.value.toUpperCase().trim() === "5551") { // Змініть на свій код
-                    rightCodeOk = true;
+                 if(e.target.value.trim() === "5551") {
+                    // 1. Блокуємо поле та підсвічуємо
                     e.target.style.borderColor = "lime";
                     e.target.disabled = true;
-                    checkProgress();
+
+                     // 2. Створюємо напис "КРАСАВА"
+                    const successMsg = document.createElement("div");
+                    successMsg.innerHTML = "КРАСАВА ЦЕЙ КОД НІЧОГО НЕ РОБИТЬ, БО Я ЗАПЛУТАВСЯ В ЛОГІЦІ";
+                    successMsg.style.color = "lime";
+                    successMsg.style.fontSize = "14px";
+                    successMsg.style.marginTop = "5px";
+                    successMsg.style.fontWeight = "bold";
+                    
+                    // Додаємо його в контейнер після поля вводу
+                    e.target.parentNode.appendChild(successMsg);
                 } else {
                     screamer("scream1", "test");
-                    timeLeft -= 30;
+                     e.target.value = ""; 
                 }
             }
         };
+
+        // Обробка полів
+        //document.getElementById("rightCode").onkeydown = e => {
+         //   if(e.key === "Enter") {
+             //   if(e.target.value.toUpperCase().trim() === "5551") { // Змініть на свій код
+                    //rightCodeOk = true;
+                    //e.target.style.borderColor = "lime";
+           //         e.target.disabled = true;
+           //         checkProgress();
+          //      } else {
+          //          screamer("scream1", "test");
+            //        timeLeft -= 30;
+           //     }
+        //    }
+    //    };
         
         document.getElementById("towerSecret").onkeydown = e => {
             if(e.key === "Enter") {
