@@ -127,8 +127,14 @@ input, button {
 }
 
 #mega-button {
-    transition: all 0.1s ease; /* Для плавного переміщення кнопки */
-    position: relative; /* Важливо для зміни координат */
+    /* Твої існуючі стилі (розмір, колір, шрифт) залишаються */
+    
+    /* Додай або зміни ці параметри: */
+    position: relative; /* Це дозволить JS перехопити контроль */
+    transition: all 0.1s ease; /* Додасть плавності переміщенню */
+    z-index: 1000;
+    cursor: pointer;
+    user-select: none; /* Щоб текст на кнопці не виділявся при швидких кліках */
 }
 
      .stage12-grid {
@@ -752,10 +758,28 @@ function initClicker() {
     const overlay = document.getElementById("flash-overlay");
     const screamSound = document.getElementById("scream1"); // Використовуємо ваш тестовий звук
 
+ // Функція для випадкового переміщення кнопки
+    const moveButtonRandomly = () => {
+        // Задаємо безпечні межі (наприклад, 10% відступу від країв екрана)
+        const offset = 100;
+        const x = Math.random() * (window.innerWidth - btn.offsetWidth - offset) + (offset / 2);
+        const y = Math.random() * (window.innerHeight - btn.offsetHeight - offset) + (offset / 2);
+        
+        btn.style.position = "fixed";
+        btn.style.left = `${x}px`;
+        btn.style.top = `${y}px`;
+        btn.style.zIndex = "10000"; // Щоб була поверх усього
+    };
+
     btn.onclick = () => {
         if (clickCount > 0) {
             clickCount--;
             counterDisplay.textContent = clickCount;
+
+            // --- Твоя нова умова: переміщення, коли залишилось 20 кліків ---
+            if (clickCount <= 20) {
+                moveButtonRandomly();
+            }
 
             // Ефект спалаху
             overlay.style.backgroundColor = acidicColors[colorIndex];
@@ -770,6 +794,8 @@ function initClicker() {
             colorIndex = (colorIndex + 1) % acidicColors.length;
 
             if (clickCount === 0) {
+                // Повертаємо кнопку на місце перед тим як сховати (про всяк випадок)
+                btn.style.position = "";
                 finishClicking();
             }
         }
