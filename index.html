@@ -1134,7 +1134,117 @@ function stage13() {
 }
 
 
+/* ===== ЕТАП 14 ФОРСАЖ ===== */
 
+function stage14() {
+    terminal.innerHTML = "";
+    
+    const container = document.createElement("div");
+    container.className = "stage14-container";
+    container.style.padding = "20px";
+    container.style.color = "#00ff66";
+
+    // Масив з правильними відповідями в потрібному порядку
+    const correctAnswers = [
+        "The Fast and the Furious (2001) — Форсаж",
+        "2 Fast 2 Furious (2003) — Подвійний форсаж",
+        "The Fast and the Furious: Tokyo Drift (2006) — Токійський дрифт",
+        "Fast & Furious (2009) — Форсаж 4",
+        "Fast Five (2011) — Форсаж 5",
+        "Fast & Furious 6 (2013) — Форсаж 6",
+        "Furious 7 (2015) — Форсаж 7",
+        "The Fate of the Furious (2017) — Форсаж 8",
+        "F9: The Fast Saga (2021) — Форсаж 9",
+        "Fast X (2023) — Форсаж 10",
+        "Fast X: Part 2 / Fast 11 — Форсаж 11"
+    ];
+
+    // Створюємо HTML для 11 блоків
+    let gridHtml = '<div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center;">';
+    
+    for (let i = 1; i <= 11; i++) {
+        gridHtml += `
+            <div class="test-block" style="border: 1px solid #333; padding: 10px; background: #050505;">
+                <label style="display: block; margin-bottom: 5px;">ТЕСТ${i}</label>
+                <select class="fast-select" data-index="${i-1}" style="width: 100%; background: #000; color: #00ff66; border: 1px solid #00ff66; padding: 5px; cursor: pointer;">
+                    <option value="" disabled selected>Оберіть фільм...</option>
+                    ${correctAnswers.map(film => `<option value="${film}">${film}</option>`).join('')}
+                </select>
+            </div>
+            <div class="status-light" id="light-${i-1}" style="width: 20px; height: 20px; border-radius: 50%; background: #333; border: 1px solid #111;"></div>
+        `;
+    }
+    gridHtml += '</div>';
+
+    container.innerHTML = `
+        <h1 style="text-align: center; color: #ff00ff; text-shadow: 0 0 10px;">ВСТАНОВІТЬ ХРОНОЛОГІЮ СІМ'Ї</h1>
+        ${gridHtml}
+        <div style="text-align: center; margin-top: 30px;">
+            <button id="freakBtn" style="padding: 15px 30px; font-size: 20px; background: #ff0000; color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 5px;">ПЕРЕВІРКА НА ФРІКА</button>
+        </div>
+        <audio id="familyAudio" src="семья.mp3"></audio>
+        <audio id="freakAudio" src="фрик.mp3"></audio>
+    `;
+
+    terminal.appendChild(container);
+
+    const familyAudio = document.getElementById("familyAudio");
+    const freakAudio = document.getElementById("freakAudio");
+    const selects = document.querySelectorAll(".fast-select");
+
+    // Запуск аудіо при будь-якому виборі
+    selects.forEach(select => {
+        select.onchange = () => {
+            if (familyAudio) {
+                familyAudio.currentTime = 0;
+                familyAudio.play().catch(() => {});
+            }
+        };
+    });
+
+    // Логіка перевірки
+    document.getElementById("freakBtn").onclick = () => {
+        if (freakAudio) {
+            freakAudio.currentTime = 0;
+            freakAudio.play().catch(() => {});
+        }
+
+        let allCorrect = true;
+
+        selects.forEach((select, index) => {
+            const light = document.getElementById(`light-${index}`);
+            if (select.value === correctAnswers[index]) {
+                light.style.background = "#00ff00";
+                light.style.boxShadow = "0 0 10px #00ff00";
+            } else {
+                light.style.background = "#ff0000";
+                light.style.boxShadow = "0 0 10px #ff0000";
+                allCorrect = false;
+            }
+        });
+
+        if (allCorrect) {
+            setTimeout(() => {
+                terminal.innerHTML = "";
+                document.body.style.background = "black";
+                const finalMsg = document.createElement("h1");
+                finalMsg.style.cssText = "color: white; font-size: 80px; text-align: center; margin-top: 20%; text-shadow: 0 0 20px red;";
+                finalMsg.innerText = "У ВАС СІНДРОМ ТУРЕТА";
+                document.body.appendChild(finalMsg);
+
+                setTimeout(() => {
+                    finalMsg.remove();
+                    if (typeof stage15 === "function") stage15();
+                }, 4000);
+            }, 1000);
+        }
+    };
+}
+    
+
+
+
+    
     
 /* ===== ЕТАП 7 ===== */
 function stage7() {
