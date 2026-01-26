@@ -1208,19 +1208,30 @@ function stage14() {
     container.innerHTML = gridHtml;
     terminal.appendChild(container);
 
-    // 4. Логіка звуків та перевірки
+   // 4. Логіка звуків та перевірки
     const familyAudio = document.getElementById("familyAudio");
     const freakAudio = document.getElementById("freakAudio");
     const selects = document.querySelectorAll(".fast-select");
 
+    // Функція для безпечного відтворення
+    const playSound = (audioElement) => {
+        if (audioElement) {
+            audioElement.pause(); // Зупиняємо, якщо вже грає
+            audioElement.currentTime = 0; // Повертаємо на початок
+            audioElement.play().catch(e => {
+                console.warn("Браузер заблокував звук до взаємодії користувача:", e);
+            });
+        }
+    };
+
     selects.forEach(s => {
         s.onchange = () => {
-            if(familyAudio) { familyAudio.currentTime = 0; familyAudio.play().catch(()=>{}); }
+            playSound(familyAudio);
         };
     });
 
     document.getElementById("freakBtn").onclick = () => {
-        if(freakAudio) { freakAudio.currentTime = 0; freakAudio.play().catch(()=>{}); }
+        playSound(freakAudio);
         
         let win = true;
         selects.forEach(s => {
