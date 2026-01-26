@@ -959,9 +959,15 @@ function stage12() {
             </div>
 
             <div id="file-zone">
-                <label>ВИВАНТАЖИТИ Історія.xsls:</label><br>
-                <input type="file" id="fileInput" accept=".xlsx, .xls, .xsls">
-            </div>
+    <label>СКАЧАТИ Історія.xlsx:</label><br>
+    <a href="Історія.xlsx" download="Історія.xlsx" id="downloadBtn" style="
+        display: inline-block;
+        color: #00ff66;
+        text-decoration: underline;
+        cursor: pointer;
+        margin-top: 5px;
+    ">Історія.xlsx (натисніть, щоб отримати файл)</a>
+</div>
 
             <div id="yellow-container"></div>
 
@@ -1011,10 +1017,8 @@ function stage12() {
         }, 120000); 
 
         // Обробка файлу
-        document.getElementById("fileInput").onchange = (e) => {
-            if (e.target.files[0].name.includes("Історія")) {
-                terminal.innerHTML += `<p style="color:cyan">Файл прийнято.</p>`;
-            }
+        document.getElementById("downloadBtn").onclick = () => {
+        terminal.innerHTML += `<p style="color:cyan">Файл вивантажено з сервера.</p>`;
         };
 
         // Обробка полів
@@ -1100,7 +1104,7 @@ function stage13() {
                 stage7(); 
             }, 30000);
 
-        }, 100000); 
+        }, 50000); 
     };
 }
 
@@ -1260,7 +1264,7 @@ function stage9() {
             document.body.appendChild(blackout);
         }
         blackout.style.display = "flex";
-        blackout.innerHTML = "PRESS [F] TO REBOOT SYSTEM";
+        blackout.innerHTML = "Кто прочитал тот гей";
 
         // 4. Очікування натискання F
         const handleF = (e) => {
