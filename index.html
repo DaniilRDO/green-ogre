@@ -958,19 +958,10 @@ function stage12() {
                 <audio id="oldRecord" src="старий.mp3"></audio>
             </div>
 
-            <div id="file-zone" style="border: 1px solid #00ff66; padding: 15px; background: #010; margin-bottom: 15px; text-align: center;">
-    <label style="display: block; margin-bottom: 10px;">ЗНАЙДЕНО ПРИХОВАНИЙ АРХІВ:</label>
-    <a href="Історія.xlsx" download="Історія.xlsx" id="downloadBtn" style="
-        display: inline-block;
-        padding: 10px 20px;
-        background: #00ff66;
-        color: black;
-        text-decoration: none;
-        font-weight: bold;
-        cursor: pointer;
-    ">📥 СКАЧАТИ Історія.xlsx</a>
-    <p id="fileStatus" style="margin-top: 10px; font-size: 0.8em; color: #777;">Очікування завантаження файлу...</p>
-</div>
+            <div id="file-zone">
+                <label>ВИВАНТАЖИТИ Історія.xsls:</label><br>
+                <input type="file" id="fileInput" accept=".xlsx, .xls, .xsls">
+            </div>
 
             <div id="yellow-container"></div>
 
@@ -986,26 +977,9 @@ function stage12() {
 
             <audio id="smsSound" src="смс.mp3"></audio>
         `;
-
+        
         terminal.appendChild(container);
 
-let fileAccepted = false; // Змінна для перевірки
-
-const downloadBtn = document.getElementById("downloadBtn");
-const fileStatus = document.getElementById("fileStatus");
-
-downloadBtn.onclick = () => {
-    fileAccepted = true; // Фіксуємо, що файл скачано
-    fileStatus.innerText = "ФАЙЛ ВИВАНТАЖЕНО. ПЕРЕВІРТЕ ЗАВАНТАЖЕННЯ.";
-    fileStatus.style.color = "cyan";
-    downloadBtn.style.background = "#008844";
-    downloadBtn.innerText = "✅ ФАЙЛ ОТРИМАНО";
-    
-    // Перевіряємо, чи можна завершити етап
-};
-
-
-       
         // Логіка кнопок аудіо
         const audio = document.getElementById("oldRecord");
         document.getElementById("playBtn").onclick = () => audio.play();
@@ -1015,6 +989,12 @@ downloadBtn.onclick = () => {
         let rightCodeOk = false;
         let towerSecretOk = false;
 
+        function checkProgress() {
+            if (rightCodeOk && towerSecretOk) {
+                terminal.innerHTML = "<h2 style='color:lime'>ДОСТУП ДО ЕТАПУ 13 ВІДКРИТО...</h2>";
+                setTimeout(stage13, 2000);
+            }
+        }
 
         // Таймер на 2 хвилини для жовтого повідомлення
         setTimeout(() => {
@@ -1040,10 +1020,11 @@ downloadBtn.onclick = () => {
         // Обробка полів
         document.getElementById("rightCode").onkeydown = e => {
             if(e.key === "Enter") {
-                if(e.target.value.toUpperCase().trim() === "5551") { // Змініть на свій код
+                if(e.target.value.toUpperCase().trim() === "GOLD") { // Змініть на свій код
                     rightCodeOk = true;
                     e.target.style.borderColor = "lime";
                     e.target.disabled = true;
+                    checkProgress();
                 } else {
                     screamer("scream1", "test");
                     timeLeft -= 30;
@@ -1053,19 +1034,11 @@ downloadBtn.onclick = () => {
         
         document.getElementById("towerSecret").onkeydown = e => {
             if(e.key === "Enter") {
-                if(e.target.value.trim() === "DEADDRAGON") {
+                if(e.target.value.toUpperCase().trim() === "DEADDRAGON") {
                     towerSecretOk = true;
                     e.target.style.borderColor = "lime";
                     e.target.disabled = true;
-                                        // Зупиняємо старий запис, щоб не заважав наступній сцені
-                    const audio = document.getElementById("oldRecord");
-                    if(audio) audio.pause();
-
-                    // Очищаємо термінал і пишемо фінальний текст перед 13 етапом
-                    terminal.innerHTML = "<h2 style='color:lime; text-align:center; margin-top:50px;'>ДОСТУП ДО ЕТАПУ 13 ВІДКРИТО...</h2>";
-                    
-                    // ПРЯМИЙ ПЕРЕХІД
-                    setTimeout(stage13, 2000);
+                    checkProgress();
                 } else {
                     screamer("scream1", "test");
                     timeLeft -= 30;
@@ -1125,7 +1098,7 @@ function stage13() {
                 rebootText.remove();
                 if(crabRave) crabRave.pause();
                 stage7(); 
-            }, 25000);
+            }, 30000);
 
         }, 100000); 
     };
