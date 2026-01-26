@@ -700,7 +700,7 @@ function updateQuestion() {
                     currentQuestion++;
                     if (currentQuestion === questions.length) {
                         alert("Етап 5 завершено! Перехід до Етапу 6...");
-                        stage12(); // Виклик наступного етапу //////////////////////////////////////////////
+                        stage6(); // Виклик наступного етапу //////////////////////////////////////////////
                     } else {
                         updateQuestion();
                     }
@@ -735,7 +735,7 @@ GREEN OGRE точно не очікує, що ти пройдеш це завд�
 
 Але чесно, агенте, мене тебе шкода, ти справжній герой своєї країни, ми будемо пам'ятати тебе!
 
-P.S. вагітним хворим на голову, людям з епілепсією, дотерам, сдвг-шникам, клоунам та карликам в шоколадних бікіні краще відійти від екрану...........................................................................................................................................................................`;
+P.S. вагітним хворим на голову, людям з епілепсією, дотерам, сдвг-шникам, клоунам та карликам в шоколадних бікіні краще відійти від екрану...............................................................................................................................................................................................................`;
 
     typeText(stage6Text, () => {
         setTimeout(() => {
@@ -746,156 +746,58 @@ P.S. вагітним хворим на голову, людям з епілеп
     });
 }
 
-let shapesCreated = false;
-
 function initClicker() {
     const btn = document.getElementById("mega-button");
-    const counterDisp = document.getElementById("click-counter");
-    const flash = document.getElementById("flash-overlay");
-    const sound = document.getElementById("scream1");
+    const counterDisplay = document.getElementById("click-counter");
+    const overlay = document.getElementById("flash-overlay");
+    const screamSound = document.getElementById("scream1"); // Використовуємо ваш тестовий звук
 
     btn.onclick = () => {
         if (clickCount > 0) {
             clickCount--;
-            counterDisp.textContent = clickCount;
+            counterDisplay.textContent = clickCount;
 
-            // 1. Кислотний спалах
-            flash.style.backgroundColor = acidicColors[colorIndex];
-            flash.style.opacity = "0.7";
-            setTimeout(() => { flash.style.opacity = "0"; }, 40);
+            // Ефект спалаху
+            overlay.style.backgroundColor = acidicColors[colorIndex];
+            overlay.style.opacity = "0.8";
+            setTimeout(() => { overlay.style.opacity = "0"; }, 50);
 
-            // 2. Звук
-            sound.currentTime = 0;
-            sound.play().catch(() => {});
+            // Звук
+            screamSound.currentTime = 0;
+            screamSound.play().catch(e => {});
 
-            // 3. Робота з фігурами
-            if (!shapesCreated) {
-                createShapes();
-                shapesCreated = true;
-            }
-            moveShapes();
-
-            // 4. Логіка втікаючої кнопки (якщо < 20 кліків)
-            if (clickCount <= 20 && clickCount > 0) {
-                moveElementRandomly(btn);
-            }
-
+            // Зміна індексу кольору
             colorIndex = (colorIndex + 1) % acidicColors.length;
 
-            // --- ОСЬ ЦЯ ЧАСТИНА ДЛЯ ПЕРЕХОДУ ---
             if (clickCount === 0) {
-                // Вимикаємо музику клікера, якщо вона була
-                if (typeof clickerMusic !== 'undefined') {
-                    clickerMusic.pause();
-                }
-
-                // Очищуємо екран від фігур
-                document.querySelectorAll('.random-shape').forEach(s => s.remove());
-
-                // Ховаємо контейнер 6-го етапу
-                const stage6Cont = document.getElementById("stage6-container");
-                if (stage6Cont) {
-                    stage6Cont.classList.add("hidden");
-                    stage6Cont.style.display = "none";
-                }
-
-                // Запускаємо наступний етап
-                stage7(); 
+                finishClicking();
             }
         }
     };
 }
 
-function createShapes() {
-    const shapes = ['circle', 'rect', 'square'];
-    shapes.forEach(type => {
-        const shape = document.createElement('div');
-        shape.className = 'random-shape';
-        shape.id = 'shape-' + type;
-        
-        // Початкові стилі
-        shape.style.width = Math.random() * 150 + 50 + 'px';
-        shape.style.height = (type === 'rect' ? Math.random() * 100 + 50 : shape.style.width);
-        if (type === 'circle') shape.style.borderRadius = '50%';
-        
-        document.body.appendChild(shape);
-    });
-}
-
-function moveShapes() {
-    const shapes = document.querySelectorAll('.random-shape');
-    shapes.forEach(shape => {
-        shape.style.backgroundColor = acidicColors[Math.floor(Math.random() * acidicColors.length)];
-        moveElementRandomly(shape);
-    });
-}
-
-function moveElementRandomly(el) {
-    // Обмежуємо зону вильоту, щоб елемент не ховався за край екрану
-    const maxX = window.innerWidth - el.offsetWidth - 50;
-    const maxY = window.innerHeight - el.offsetHeight - 50;
-    
-    const randomX = Math.max(0, Math.floor(Math.random() * maxX));
-    const randomY = Math.max(0, Math.floor(Math.random() * maxY));
-    
-    el.style.position = 'fixed';
-    el.style.left = randomX + 'px';
-    el.style.top = randomY + 'px';
-}
-
 function finishClicking() {
-    const btn = document.getElementById("mega-button");
-    const counter = document.getElementById("click-counter");
-    const sdvgLabel = document.getElementById("sdvg-label");
-    const inputWrap = document.getElementById("final-input-wrap");
-    const container = document.getElementById("stage6-container");
+    document.getElementById("click-counter").classList.add("hidden");
+    document.getElementById("mega-button").classList.add("hidden");
+    
+    document.getElementById("final-code-display").classList.remove("hidden");
+    document.getElementById("final-input-stage6").classList.remove("hidden");
 
-    // 1. Ховаємо ігрові елементи
-    if (btn) btn.style.display = "none";
-    if (counter) counter.style.display = "none";
-
-    // 2. Очищуємо контейнер від залишків рандомних позицій
-    // Це важливо, якщо кнопка "потягнула" за собою верстку
-    if (container) {
-        container.style.position = "relative";
-        container.style.left = "0";
-        container.style.top = "0";
-    }
-
-    // 3. Показуємо фінальні елементи
-    if (sdvgLabel) {
-        sdvgLabel.classList.remove("hidden");
-        sdvgLabel.style.display = "block"; // Гарантуємо відображення
-        sdvgLabel.style.position = "static"; // Скидаємо fixed/absolute
-        sdvgLabel.style.textAlign = "center";
-        sdvgLabel.style.fontSize = "30px";
-        sdvgLabel.style.color = "red";
-        sdvgLabel.innerHTML = "ВИЯВЛЕНО СДВГ. ПІДТВЕРДІТЬ ДІАГНОЗ:";
-    }
-
-    if (inputWrap) {
-        inputWrap.classList.remove("hidden");
-        inputWrap.style.display = "block";
-    }
-
-    const inp = document.getElementById("inputStage6");
-    if (inp) {
-        inp.focus();
-        inp.onkeydown = (e) => {
-            if (e.key === "Enter") {
-                if (inp.value.toUpperCase().trim() === "СДВГ") {
-                    alert("ПРОТОКОЛ ПОРУШЕНО. ПЕРЕХІД ДО ЕТАПУ 7");
-                    stage7();
-                } else {
-                    // Візуальна віддача при помилці
-                    inp.style.borderColor = "red";
-                    setTimeout(() => inp.style.borderColor = "#00ff66", 500);
-                }
+    const input6 = document.getElementById("inputStage6");
+    input6.focus();
+    input6.onkeydown = e => {
+        if (e.key === "Enter") {
+            if (input6.value.toUpperCase() === "СДВГ") {
+                alert("ПРОТОКОЛ ПОРУШЕНО. ПЕРЕХІД ДО ЕТАПУ 7");
+                stage12(); // Виклик наступного етапу
+            } else {
+                timeLeft -= 100; // Жорсткий штраф
+                input6.value = "";
+                screamer("scream1", "test");
             }
-        };
-    }
+        }
+    };
 }
-
 
 
 /* ===== Звук клавіш ===== */
@@ -930,10 +832,10 @@ document.addEventListener('keydown', (e) => {
 /* ===== ЕТАП 12 ===== */
 function stage12() {
 
-     terminal.innerHTML = "";
+    terminal.innerHTML = "";
     document.getElementById("stage5-container").classList.add("hidden");
     
-     const st6 = document.getElementById("stage6-container");
+    const st6 = document.getElementById("stage6-container");
     if (st6) st6.classList.add("hidden");
     if (document.getElementById("flash-overlay")) document.getElementById("flash-overlay").remove();
 
