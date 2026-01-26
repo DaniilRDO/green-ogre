@@ -990,7 +990,7 @@ function stage12() {
         let towerSecretOk = false;
 
         function checkProgress() {
-            if (rightCodeOk && towerSecretOk) {
+            if (towerSecretOk) {
                 terminal.innerHTML = "<h2 style='color:lime'>ДОСТУП ДО ЕТАПУ 13 ВІДКРИТО...</h2>";
                 setTimeout(stage13, 2000);
             }
@@ -1020,7 +1020,7 @@ function stage12() {
         // Обробка полів
         document.getElementById("rightCode").onkeydown = e => {
             if(e.key === "Enter") {
-                if(e.target.value.toUpperCase().trim() === "GOLD") { // Змініть на свій код
+                if(e.target.value.toUpperCase().trim() === "5551") { // Змініть на свій код
                     rightCodeOk = true;
                     e.target.style.borderColor = "lime";
                     e.target.disabled = true;
