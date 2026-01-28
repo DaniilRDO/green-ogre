@@ -535,7 +535,6 @@ function stage3() {
                     timeLeft += 600; // +10 хвилин
                     sInput.disabled = true;
                     sInput.style.color = "gray";
-                    terminal.innerHTML += "<p style='color:cyan'>ЧАС ПОПОВНЕНО!</p>";
                 } else {
                     screamer("scream1", "test");
                     timeLeft -= 60;
@@ -547,6 +546,7 @@ function stage3() {
         pInput.onkeydown = e => {
             if (e.key === "Enter") {
                 if (pInput.value.toUpperCase() === "GERMANY") {
+                    timeLeft += 600;
                     stage = 4;
                     terminal.innerHTML = "ЕТАП 3 ЗАВЕРШЕНО. ПЕРЕХІД...";
                     setTimeout(stage4, 2000); // Перехід до вашої вікторини
@@ -1187,14 +1187,92 @@ function stage14() {
                 
                 setTimeout(() => {
                     h1.remove();
-                    if(typeof stage7 === "function") stage7();
+                    if(typeof stage15 === "function") stage15();
                 }, 5000);
             }, 1500);
         }
     };
 }
     
+/* ===== ЕТАП 15 ФОРСАЖ ===== */
 
+    function stage15() {
+    terminal.innerHTML = "";
+    
+    // Дані квесту
+    const riddles = [
+        { text: "Наносит 3 ед. урона. Если у вас под контролем есть зверь, вместо этого наносит 5 ед. урона.", code: "Команда «Взять!»" },
+        { text: "Рывок 9 мани 8/8", code: "Король Круш" },
+        { text: "предотвращает наносимый вашему герою смертельный урон и дает ему неуязвимость до конца хода.", code: "Ледяная глыба" },
+        { text: "Боевой клич: противник получает 2 банана.", code: "Король Мукла" },
+        { text: "Боевой клич: призывает мурлока-разведчика 1/1.", code: "Мурлок-волнолов" },
+        { text: "Превращает существо в лягушку 0/1 с «Провокацией».", code: "Сглаз" },
+        { text: "+5 к атаке, если у этого существа неполное здоровье.", code: "Злая курица" }
+    ];
+
+    let currentStep = 0;
+
+    // Створюємо контейнер
+    const stageContainer = document.createElement("div");
+    stageContainer.style.cssText = "display: flex; justify-content: space-between; align-items: center; min-height: 80vh; color: white; text-shadow: 1px 1px 5px black;";
+
+    stageContainer.innerHTML = `
+        <img src="leftF.jpg" style="width: 250px; height: auto; border: 2px solid gold; border-radius: 10px;">
+        
+        <div id="quiz-box" style="width: 45%; text-align: center; background: rgba(0,0,0,0.7); padding: 30px; border-radius: 15px; border: 2px solid #555;">
+            <h3 style="color: gold; margin-bottom: 20px;">НЕЕЕЕ ТРООООГАЙ ЯЯЯЯЙЦА</h3>
+            <p id="riddle-text" style="font-size: 1.2em; min-height: 80px; margin-bottom: 20px;">${riddles[0].text}</p>
+            <input type="text" id="answer-input" style="width: 80%; padding: 10px; background: #111; color: white; border: 1px solid gold; outline: none; text-align: center; font-size: 1.1em;">
+            <p style="color: #888; margin-top: 10px; font-size: 0.8em;">(Натисніть Enter для перевірки)</p>
+        </div>
+
+        <img src="rightF.jpg" style="width: 250px; height: auto; border: 2px solid gold; border-radius: 10px;">
+        
+        <audio id="windAudio" src="wind.mp3"></audio>
+    `;
+
+    terminal.appendChild(stageContainer);
+
+    const input = document.getElementById("answer-input");
+    const riddleDisplay = document.getElementById("riddle-text");
+    const windAudio = document.getElementById("windAudio");
+
+    input.focus();
+
+    input.onkeydown = (e) => {
+        if (e.key === "Enter") {
+            const userValue = input.value.trim();
+            
+            // Перевірка (регістр не має значення)
+            if (userValue.toLowerCase() === riddles[currentStep].code.toLowerCase()) {
+                
+                // Граємо звук
+                if (windAudio) {
+                    windAudio.currentTime = 0;
+                    windAudio.play().catch(() => {});
+                }
+
+                currentStep++;
+
+                // Якщо є ще питання
+                if (currentStep < riddles.length) {
+                    input.value = "";
+                    riddleDisplay.innerText = riddles[currentStep].text;
+                } else {
+                    // Фінал етапу
+                    terminal.innerHTML = "<h1 style='color:gold; text-align:center; margin-top: 20%;'>ЛЕГЕНДАРНИЙ ГРАВЕЦЬ ВИЯВЛЕНИЙ!</h1>";
+                    setTimeout(() => {
+                        if (typeof stage7 === "function") stage7(); 
+                    }, 3000);
+                }
+            } else {
+                // Ефект помилки (вібрація поля)
+                input.style.borderColor = "red";
+                setTimeout(() => input.style.borderColor = "gold", 500);
+            }
+        }
+    };
+}
 
 
     
@@ -1416,7 +1494,7 @@ function stage10() {
 Отже, це останній вибір, тепер все в твоїх брудних лапах і ти отримаєш той дурний код.`;
             document.getElementById("ogre-dialogue").innerHTML = afterScreamerText;
             restartButton.remove(); // Прибираємо кнопку рестарту
-        }, 100000); // Час скримера
+        }, 150000); // Час скримера
     };
 
     // Логіка для вибору та переходу на Етап 11
