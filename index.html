@@ -1400,7 +1400,8 @@ function stage10() {
     screamerImg.style.left = "0";
     screamerImg.style.width = "100vw";
     screamerImg.style.height = "100vh";
-    screamerImg.style.objectFit = "cover"; // Щоб картинка не розтягувалася некрасиво
+        screamerImg.style.objectFit = "contain";
+        creamerImg.style.backgroundColor = "black";
     screamerImg.style.zIndex = "100000";   // Максимальний пріоритет
     
     // Додаємо картинку в body
