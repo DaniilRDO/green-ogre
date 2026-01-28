@@ -1217,7 +1217,7 @@ function stage14() {
     stageContainer.style.cssText = "display: flex; justify-content: space-between; align-items: center; min-height: 80vh; color: white; text-shadow: 1px 1px 5px black;";
 
     stageContainer.innerHTML = `
-        <img src="leftF.jpg" style="width: 250px; height: auto; border: 2px solid gold; border-radius: 10px;">
+        <img src="leftF.png" style="width: 250px; height: auto; border: 2px solid gold; border-radius: 10px;">
         
         <div id="quiz-box" style="width: 45%; text-align: center; background: rgba(0,0,0,0.7); padding: 30px; border-radius: 15px; border: 2px solid #555;">
             <h3 style="color: gold; margin-bottom: 20px;">НЕЕЕЕ ТРООООГАЙ ЯЯЯЯЙЦА</h3>
@@ -1226,7 +1226,7 @@ function stage14() {
             <p style="color: #888; margin-top: 10px; font-size: 0.8em;">(Натисніть Enter для перевірки)</p>
         </div>
 
-        <img src="rightF.jpg" style="width: 250px; height: auto; border: 2px solid gold; border-radius: 10px;">
+        <img src="rightF.png" style="width: 250px; height: auto; border: 2px solid gold; border-radius: 10px;">
         
         <audio id="windAudio" src="wind.mp3"></audio>
     `;
@@ -1260,7 +1260,7 @@ function stage14() {
                     riddleDisplay.innerText = riddles[currentStep].text;
                 } else {
                     // Фінал етапу
-                    terminal.innerHTML = "<h1 style='color:gold; text-align:center; margin-top: 20%;'>ЛЕГЕНДАРНИЙ ГРАВЕЦЬ ВИЯВЛЕНИЙ!</h1>";
+                    terminal.innerHTML = "<h1 style='color:gold; text-align:center; margin-top: 20%;'>Точно не фрик?!</h1>";
                     setTimeout(() => {
                         if (typeof stage7 === "function") stage7(); 
                     }, 3000);
